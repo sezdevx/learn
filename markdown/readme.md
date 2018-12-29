@@ -81,3 +81,24 @@ http://www.example.com automatically becomes a link, so does
 ```
 
 ![Flag](./img/FlagB_32.gif "Flag")
+
+## Tables
+```
+| Country        |  Population    |
+| -------------- | -------------- |
+| USA            | 180671000      |
+| South Africa   | 17456855       |
+| Turkey         | 27472331       |
+| Nigeria        | 45137812       |
+| Netherlands    | 11486631       |
+| China          | 667070000      |
+```
+
+| Country        |  Population    |
+| -------------- | -------------- |
+| USA            | 180671000      |
+| South Africa   | 17456855       |
+| Turkey         | 27472331       |
+| Nigeria        | 45137812       |
+| Netherlands    | 11486631       |
+| China          | 667070000      |
