@@ -85,7 +85,7 @@ http://www.example.com automatically becomes a link, so does
 ## Tables
 ```
 | Country        |  Population    |
-| -------------- | -------------- |
+| -------------- | --------------:|
 | USA            | 180671000      |
 | South Africa   | 17456855       |
 | Turkey         | 27472331       |
@@ -95,7 +95,7 @@ http://www.example.com automatically becomes a link, so does
 ```
 
 | Country        |  Population    |
-| -------------- | -------------- |
+| -------------- | --------------:|
 | USA            | 180671000      |
 | South Africa   | 17456855       |
 | Turkey         | 27472331       |
