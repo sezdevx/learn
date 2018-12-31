@@ -86,6 +86,69 @@
 * `curl`: to download urls
 
 ## Command Examples
+* To move a directory to a remote server after compressing it
+```bash
+tar cvfz - directory/ | ssh user@test.com "tar xvfz -C ~/Documents/"
+```
+
+* To add a new file to an existing archive
+```bash
+tar rf archive.tar newFile.txt
+```
+
+* To extract a tar archive to a specific directory
+```bash
+tar xfvz archive.tgz -C /path/to/newDir
+```
+
+* To extract a specific set of files
+```bash
+tar xvf archive.tar file1 file2
+tar xvfz archive.tar.gz file1 file2
+```
+
+* To append a file to an archive only if the file is updated
+```bash
+tar uf archive.tar file1
+```
+
+* To compare timestamps of files within an archive with the real ones
+```bash
+tar df archive.tar
+```
+
+* To exclude certain files
+```bash
+tar cf archive.tar * --exclude "*.txt"
+tar cf archive.tar * -X list.file
+```
+
+* To exclude version control directories
+```bash
+tar --exclude-vcs -czvvf archive.tar.gz projectDir
+```
+
+* To list gzip compression ratio
+```bash
+gunzip -l file.gz
+```
+
+* To compress really fast at the expense of compression ratio
+```bash
+gzip -1 file
+```
+
+* To compress the most at the expense of compression speed
+```bash
+gzip -9 file
+```
+
+* To concatenate two archives
+```bash
+tar -Af archive.tar file2.tar
+# now archive.tar includes all the contents of file2.tar too
+```
+
 * To manipulate multiple directories
 ```bash
 cd /tmp

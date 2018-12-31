@@ -1,4 +1,4 @@
-# Purpose of this Project
+# ![Learn](./img/GraduateB_16.gif "Learn") Purpose of this Project
 A set of notes, documentation and tips collected, created for various support topics
 
 * [Bash](bash/readme.md)

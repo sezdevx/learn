@@ -97,6 +97,49 @@ more /proc/version
 uname -a
 ```
 
+* To set the ip address of an interface
+```bash
+ifconfig wlan0 192.168.0.70
+# to set the subnet mask too
+ifconfig wlan0 192.168.0.70 netmask 255.255.252.0
+# to get a new one from the dhcp server
+dhclient wlan0
+```
+
+* Where DNS info is located
+```bash
+cat /etc/resolv.conf
+# to add new servers edit the file or
+sudo echo nameserver <IP_ADDRESS> >> /etc/resolv.conf
+```
+
+* To list the ip addresses of a domain
+```bash
+host test.com
+nslookup test.com
+```
+
+* To add a symbolic name to a given IP address
+```bash
+# /etc/hosts
+127.0.0.1  localhost
+```
+
+* To display routing table information
+```bash
+route
+```
+
+* To add a default gateway
+```bash
+route add default gw IP_ADDRESS INTERFACE_NAME
+```
+
+* To send a single packet in ping
+```bash
+ping www.test.com -c 1
+```
+
 ## tmux
 * Default command prefix is `Ctrl-b`, I changed it to `Ctrl-Space`
 
