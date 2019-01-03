@@ -650,7 +650,7 @@ ssh-keygen -v -t rsa -b 4096 -C 'My New Key'
 ```bash
 # create key-pair using ssh-keygen
 ssh-keygen -v -t rsa -b 4096 -C 'My New Key'
-# append ~/.ssh/id_rsa.pub into ~/.ssh/authorized_keys file
+# append ~/.ssh/id_rsa.pub into ~/.ssh/authorized_keys file on the remote server
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 # make sure that ~/.ssh is readable by you only
 # drwx------   4 username  group 128 Aug 30 22:52 .ssh
@@ -665,6 +665,11 @@ set | grep SSH
 ssh-add
 # how to kill the ssh-agent
 # eval `ssh-agent -k`
+```
+
+* To forward port 9090 on your local machine to port 80 on www.test.com
+```bash
+ssh -L 9090:www.test.com:80 user@
 ```
 
 * To run a script on a remote server without copying the script file there
@@ -1122,4 +1127,38 @@ curl http://www.test.com --limit-rate 20k
 curl http://www.test.com --max-filesize 1048576
 # to print response headers excluding data
 curl -I http://www.test.com
+```
+
+* To specify a different non-default port for ssh
+```bash
+ssh userName@remotehost -p portNumber
+```
+
+* To run a command remotely and show its output locally
+```bash
+ssh userName@remotehost 'Commands'
+```
+
+* To compress the data
+```bash
+ssh -C userName@remotehost 'Commands'
+```
+
+* To redirect data using ssh
+```bash
+echo 'hello world' | ssh userName@remotehost 'echo'
+ssh userName@remotehost 'echo' < local.file
+```
+
+* To run X11 remotely but display ui locally
+```bash
+ssh -X userName@remotehost "xwinCommand"
+```
+
+* To copy securely
+```bash
+scp local.file userName@remotehost:/remote/path
+scp userName@remotehost:/remote/path/remote.file local.file
+# to recursively copy a directory
+scp -r local.directory userName@remotehost:/remote/path
 ```
