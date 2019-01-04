@@ -503,6 +503,35 @@ jobs -l
 * To measure the time it takes to run a command
 ```bash
 time command
+# to save the output to a file
+/usr/bin/time -o time.output command
+/usr/bin/time command 2> time.output
+# time with a format
+/usr/bin/time -f "User Time: %U" command
+# format strings
+# %U: User time
+# %Z: System Page Size
+# %e: Real time
+# %S: System time
+# %M: Maximum memory used in KB
+```
+
+* To format output of time command
+  1. %C: name of the command line arguments
+  2. %D: average size of the process's unshared data area
+  3. %E: elapsed real time
+  4. %x: exit status
+  5. %k: number of signals delivered to the process
+  6. %W: number of swaped out of main memory
+  7. %Z: system page size
+  8. %P: percentage of the CPU this job got
+  9. %K: shows the average total (data + stack + text) memory usage
+  10. %w: number of voluntary context-switches
+  11. %c: number of involuntary context-switches
+
+* To extract the uptime
+```bash
+uptime | sed 's/.*up \(.*\),.*users.*/\1/'
 ```
 
 * To format dates
@@ -667,9 +696,26 @@ ssh-add
 # eval `ssh-agent -k`
 ```
 
-* To forward port 9090 on your local machine to port 80 on www.test.com
+* To forward port 8080 on your local machine to port 80 on www.test.com.
+This is called local port forwarding.
 ```bash
-ssh -L 9090:www.test.com:80 user@
+# this is just like sshing to your own local machine
+# until you exit you create an ssh tunnel to test.com on port 80
+ssh -L 8080:www.test.com:80 localhost
+```
+
+* To give VNC access to someone to your machine
+```bash
+# make sure that /etc/ssh/sshd_config has GatewayPorts yes
+# if you need to make a change, then you need to restart the service
+# with sudo systemctl restart sshd
+ssh -R 5900:localhost:5900 userName@remoteHost
+```
+
+* To make non-interactive port forwaring
+```bash
+ssh -fL 8080:www.test.com:80 localhost -N
+# -f means fork to background, -N means there is no command to run
 ```
 
 * To run a script on a remote server without copying the script file there
