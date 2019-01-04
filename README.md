@@ -8,3 +8,4 @@ A set of notes, documentation and tips collected, created for various support to
 * [Linux](linux/readme.md)
 * [Windows](windows/readme.md)
 * [Markdown](markdown/readme.md)
+* [Intellij Idea](intellij/readme.md)

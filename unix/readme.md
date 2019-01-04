@@ -84,8 +84,19 @@
 * `paste`: merges multiple files column-wise
 * `wget`: to download urls
 * `curl`: to download urls
+* `logger`: log messages into the system log
 
 ## Command Examples
+* To log messages
+```bash
+logger message
+# to define a tag
+logger -t tagName A message
+# using config files in /etc/rsyslog.d and -p option to logger you can control
+# where the log messages are saved to, on ubuntu it is /var/log/syslog
+# you may need to start the rsyslog service if it is not alreayd running
+```
+
 * To move a directory to a remote server after compressing it
 ```bash
 tar cvfz - directory/ | ssh user@test.com "tar xvfz -C ~/Documents/"

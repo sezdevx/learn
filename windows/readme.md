@@ -27,6 +27,13 @@ choose the Ubuntu ISO and start the machine again.
 * [Microsoft Office](http://www.microsofthup.com/hupus/home.aspx)
 * [Node.js](https://nodejs.org/en/)
 
+## Ubuntu
+* To start rsyslog service (by default it is not started)
+```bash
+sudo service rsyslog start
+# now you can use logger and check /var/log/syslog file
+```
+
 ## Cygwin
 Install [Cygwin](https://cygwin.com/install.html). Make sure the following packages are
 installed:

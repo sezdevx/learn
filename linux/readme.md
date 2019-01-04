@@ -3,6 +3,29 @@
 ## Other Programs
 * [tmux](tmux.md)
 
+## Recipes
+### [network_map.sh](network_map.sh)
+* To view available hosts in a given network
+* Using ping to check if a machine is up or down
+
+### [ps_cpu_usage.sh](ps_cpu_usage.sh)
+* To observe process cpu usage over a configured time
+
+## Important Files
+* `/etc/resolv.conf`
+Where DNS servers are listed
+
+* `/etc/mtab`
+Where mounted file systems are listed
+
+* Log file locations
+  - `/var/log/boot.log` : boot log info
+  - `/var/log/httpd` : apache web server log
+  - `/var/log/messages`: post boost kernel info
+  - `/var/log/auth.log`, `/var/log/secure`: user authentication log
+  - `/var/log/dmesg`: system boot up messages
+  - `/var/log/mail.log`, `/var/log/maillog`: mail server log
+  - `/var/log/Xorg.0.log`: X server log
 
 ## Packages needed
 ```bash
@@ -27,6 +50,8 @@ sudo apt install net-tools
 sudo apt install openssh-server
 # to measure network performance
 sudo apt install iperf
+# for inotifywait
+sudo apt install inotify-tools
 ```
 
 ## Install Apps
@@ -45,8 +70,20 @@ sudo apt install iperf
 * `nc`: to create TCP and UDP connections and servers
 * `last`: to show a listing of last logged in users
 * `lastb`: to show a listing of failed logged in users
+* `inotifywait`: to shows changes to files using inotify
+* `logrotate`: to rotate the logs
 
 ## Command Examples
+* To output changes to a directory
+```bash
+inotifywait -m -r -e create,move,open /path  -q
+# -m to stay active and continous monitoring
+# -r for recursive watch
+# -e for list of events to watch
+#    access,modify,attrib,move,create,open,close,delete
+# -q for quiter messaging
+```
+
 * To communicate with nc
 ```bash
 # create the server on port 12345
@@ -162,6 +199,11 @@ cat ../data/population.csv | cut -d ',' -f1,2,3 | paste - -
 watch -n 4 "ps aux | sort -nrk 3,3 | head -n 5"
 ```
 
+* to highlight the differences in the output of watch
+```bash
+watch -d 'commands'
+```
+
 * pidof by default displays one or more pids of a given program
 ```bash
 pidof commandName
@@ -230,17 +272,38 @@ ping www.test.com -c 1
 mtr www.test.com
 ```
 
-## Recipes
-### [network_map.sh](network_map.sh)
-* To view available hosts in a given network
-* Using ping to check if a machine is up or down
+* To configure the syslogd so that it saves to a particular file (local0 to local7)
+```bash
+cat /etc/rsyslog.d/local7.config
+# local7.* /var/log/local7
+logger -p local7 "Message"
+```
 
-### [ps_cpu_usage.sh](ps_cpu_usage.sh)
-* To observe process cpu usage over a configured time
+* To rotate logs and configure rotation
+```bash
+# /etc/logrotate.d
+more dpkg
+/var/log/dpkg.log {
+        monthly
+        rotate 12
+        compress
+        delaycompress
+        missingok
+        notifempty
+        create 644 root root
+}
+```
 
-## Important Files
-* `/etc/resolv.conf`
-Where DNS servers are listed
+  - `missingok`: ignores if the log file is missing
+  - `notifempty`: only rotate if the log file is not empty
+  - `size 30k`: limits the size of the log file
+  - `compress`: compresses the older files with gzip
+  - `weekly`: interval of rotations
+  - `rotate 3`: number of old copies to keep
+  - `create 644 root root`: mode, user and the group of the archived log files
 
-* `/etc/mtab`
-Where mounted file systems are listed
+* To detect failed login attempts
+```bash
+more /var/log/auth.log # or /var/log/secure.log
+grep "Failed pass" /var/log/auth.log
+```
