@@ -34,6 +34,22 @@ sudo service rsyslog start
 # now you can use logger and check /var/log/syslog file
 ```
 
+* To see status of all services
+```bash
+sudo service --status-all
+```
+
+* To start mysql after installing mysql-server
+```bash
+sudo service mysql start
+# login to mysql
+sudo mysql -u root
+# or
+sudo mysql --default-file=/etc/mysql/debian.cnf
+# create a database user
+GRANT ALL PRIVILEGES ON *.* TO 'username'@'localhost' IDENTIFIED BY 'password';
+```
+
 ## Cygwin
 Install [Cygwin](https://cygwin.com/install.html). Make sure the following packages are
 installed:

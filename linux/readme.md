@@ -57,6 +57,8 @@ sudo apt install iperf
 sudo apt install inotify-tools
 # for sqlite3
 sudo apt-get install sqlite3 libsqlite3-dev
+# for mysql
+sudo apt-get install mysql-server
 ```
 
 ## Install Apps
@@ -87,8 +89,14 @@ sudo apt-get install sqlite3 libsqlite3-dev
 * `lswh`: list hardware
 * `dmidecode`: DMI table decoder
 * `crontab`: to view/modify crontab jobs
+* `lsb_release`: to print distribution-specific information
 
 ## Command Examples
+* To display distribution specific info
+```bash
+lsb_release -a
+```
+
 * To extract detailed information on the hardware
 ```bash
 sudo lswh
