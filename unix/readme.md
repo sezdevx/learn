@@ -298,6 +298,11 @@ while ! ping host.name &> /dev/null; do
 done
 ```
 
+* To list all signals
+```bash
+kill -l
+```
+
 * Send a signal based on a name
 ```bash
 pkill emacs # by default SIGTERM is sent

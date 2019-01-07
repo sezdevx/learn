@@ -9,3 +9,5 @@ A set of notes, documentation and tips collected, created for various support to
 * [Windows](windows/readme.md)
 * [Markdown](markdown/readme.md)
 * [Intellij Idea](intellij/readme.md)
+
+https://github.com/mathiasbynens/dotfiles

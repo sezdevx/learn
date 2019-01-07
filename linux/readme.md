@@ -72,8 +72,65 @@ sudo apt install inotify-tools
 * `lastb`: to show a listing of failed logged in users
 * `inotifywait`: to shows changes to files using inotify
 * `logrotate`: to rotate the logs
+* `fsck`: to check and repair a linux file system
+* `hdparm`: get/set SATA/IDE device parameters
+* `whereis`: location of the command, as well as the manual page
+* `whatis`: one line description of the command
+* `pgrep`: look up pid based on name
+* `killall`: kill by process name
 
 ## Command Examples
+* You can use the following options with `-o` of ps
+   * `pcpu`: percentage of CPU
+   * `pid`: process id
+   * `ppid`: parent process id
+   * `pmem`: percentage of memory
+   * `comm`: executable filename
+   * `cmd`: simple command
+   * `user`: user name
+   * `nice`: priority
+   * `time`: cumulative CPU time
+   * `etime`: elapsed time since the process started
+   * `tty`: associated tty device
+   * `euid`: effective uid
+   * `stat`: process state
+
+* To get the pid of bash process ran by root
+```bash
+pgrep -u root bash
+# to get the number of processes
+pgrep -c bash
+```
+
+* To see the pid of a command
+```bash
+ps -C bash -o pid=
+```
+
+* To see the top 5 CPU consuming processes
+```bash
+ps -eo comm,pcpu --sort -pcpu | head -5
+```
+
+* To see threads
+```bash
+ps -Lf
+```
+
+* To get basic information about your device
+```bash
+hdparm -I /dev/sda1
+# to test the disk performance
+hdparm -t /dev/sda1
+```
+
+* To check all systems defined in `/etc/fstab`
+```bash
+fsck -A
+# to automatically fix errors
+fsck -a /dev/sda1
+```
+
 * To output changes to a directory
 ```bash
 inotifywait -m -r -e create,move,open /path  -q
