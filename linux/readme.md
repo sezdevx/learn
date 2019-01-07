@@ -90,8 +90,45 @@ sudo apt-get install mysql-server
 * `dmidecode`: DMI table decoder
 * `crontab`: to view/modify crontab jobs
 * `lsb_release`: to print distribution-specific information
+* `useradd`: to add a new user
+* `deluser`: to remove a user
+* `chsh`: to change user shell
+* `usermod`: to lock/unlock a user
+* `chage`: modify password expiration
+* `addgroup`: to add a new group
+* `delgroup`: to delete a group
 
 ## Command Examples
+* To list password related info for a user
+```bash
+chage -l userName
+# a user can change his/her own settings
+```
+
+* To lock or unlock a user
+```bash
+# lock
+usermod -L userName
+# unlock
+usermod -U userName
+```
+
+* To add a new user
+```bash
+useradd userName -p password -m
+# -m to create the home directory too
+```
+
+* To change user shell
+```bash
+csh userName -s /bin/csh
+```
+
+* To delete a user
+```bash
+deluser userName --remove-all-files
+```
+
 * To display distribution specific info
 ```bash
 lsb_release -a
