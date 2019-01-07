@@ -15,6 +15,9 @@
 * `/etc/resolv.conf`
 Where DNS servers are listed
 
+* `/proc/partitions`
+Where disk partitions are described
+
 * `/etc/mtab`
 Where mounted file systems are listed
 
@@ -52,6 +55,8 @@ sudo apt install openssh-server
 sudo apt install iperf
 # for inotifywait
 sudo apt install inotify-tools
+# for sqlite3
+sudo apt-get install sqlite3 libsqlite3-dev
 ```
 
 ## Install Apps
@@ -78,8 +83,42 @@ sudo apt install inotify-tools
 * `whatis`: one line description of the command
 * `pgrep`: look up pid based on name
 * `killall`: kill by process name
+* `fdisk`: manipulates disk partition table
+* `lswh`: list hardware
+* `dmidecode`: DMI table decoder
+* `crontab`: to view/modify crontab jobs
 
 ## Command Examples
+* To extract detailed information on the hardware
+```bash
+sudo lswh
+```
+
+* To view crontab for the current user
+```bash
+crontab -l
+```
+
+* To remove crontab
+```bash
+crontab -r
+```
+
+* To check if cron is running
+```bash
+sudo systemctl status cron
+```
+
+* To dump SMBIOS (DMI) table contents
+```bash
+sudo dmidecode
+```
+
+* To display disk partitions
+```bash
+sudo fdisk -l
+```
+
 * You can use the following options with `-o` of ps
    * `pcpu`: percentage of CPU
    * `pid`: process id
