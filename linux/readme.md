@@ -97,8 +97,188 @@ sudo apt-get install mysql-server
 * `chage`: modify password expiration
 * `addgroup`: to add a new group
 * `delgroup`: to delete a group
+* `tcpdump`: to dump traffic on a network
+* `ngrep`: to find a pattern to watch on network traffic
+* `ip`: to show/change routing and network interfaces
+* `strace`: to show system calls
+* `ltrace`: similar to strace, but for user level library calls (for dynamically linked ones)
+* `service`: to run and view init scripts
+* `ss`: to investigate sockets
+* `dstat`: to generate system usage stats
+* `pidstat`: to report resource usage per process
+* `sysctl`: change kernel parameters online
+* `nice`: to run a program with modified scheduling priority
+* `renice`: to change the priority of running processes
+* `top`: display linux processes
 
 ## Command Examples
+* top command displays real-time view of a running system
+```bash
+%Cpu(s):  5.0 us,  2.7 sy,  0.0 ni, 92.2 id,  0.0 wa,  0.2 hi,  0.0 si,  0.0 st
+# us: user processes
+# sy: kernel processes
+# ni: niced user processes
+# wa: waiting for IO completion
+# hi: hardware interrupts
+# si: software interrupts
+# st: time stolen for this VM by the hypervisor
+```
+
+```bash
+# PID: pid of the process
+# USER: user name of the process
+# PR: priority of the process
+# NI: nice value of the process
+# VIRT: virtual memory used by the process
+# RES: physical memory used by the process
+# SHR: shared memory
+# S: status of the process
+# %CPU: percentage of CPU
+# %MEM: percentage of RAM
+# TIME+: total time of activity of this process
+# COMMAND: name of the process
+```
+
+* To display the ps tree
+```bash
+pstree
+```
+
+* To install X.509 security certificate trusted by browsers
+```bash
+# uses Let's Encrypt free certificate authority (letsencrypt.org)
+wget https://dl.eff.org/certbot-auto
+chmod a+x certbot-auto
+./certbot-auto
+```
+
+* To install linux container (lxc)
+```bash
+# on ubuntu
+apt-get install lxc1
+# on debian
+apt-get install lxc
+# red-hat
+yum install epel-release
+yum install perl libvirt debootstrap
+yum install lxc lxc-templates tunctl bridge-utils
+```
+
+* `lxc` commands
+Priviliged containers are easier to create (created by root), because they don't require uid and gid
+mapping.
+```bash
+lxc-create
+lxc-ls
+lxc-start
+lxc-stop
+lxc-attach
+lxc-console
+lxc-info
+```
+
+* To createa a privileged container. The easiest way is to download a
+prebuilt distro in a privileged container.
+```bash
+lxc-create -n NAME -t TYPE
+# if TYPE is download, then you can download a pre-built one from internet
+```
+
+* To change the priority of a running process
+```bash
+renice 11 PID_OF_PROCESS
+```
+
+* To change kernel parameters, you can edit `/etc/sysctl.conf`,
+but it is better to test them with `sysctl` tool before editing the file
+because you can ruin the kernel with bad values.
+```bash
+# list all parameters and their values
+sysctl -a
+# to list the value of a particular parameter
+sysctl vm.swappiness
+```
+
+* To report various stats per process
+```bash
+# pidstat -d: IO
+# pidstat -r: page faults and memory utilization
+# pidstat -u: cpu utilization
+# pidstat -w: task switches
+```
+
+* To get an idea about general system stats
+```bash
+dstat
+# you can identify the top resource user
+# -top-cpu: cpu usage
+# -top-io: io usage (network io mostly)
+# -top-bio: disk usage
+# -top-mem: memory usage
+# -top-latency: process with the highest latency
+```
+
+* To display the status of tcp sockets
+```bash
+ss -t
+# to display sockets on listen mode
+ss -l
+# to display udp sockets on listen mode too
+ss -ul
+# then you can use lsof to investigate the processes using that port
+# lsof -i :989
+```
+
+
+* To see the status of all services
+```bash
+service --status-all
+```
+
+* To stop mysql service
+```bash
+sudo service mysql stop
+```
+
+* To disable a service
+```bash
+sudo systemctl disable SERVICE_NAME
+```
+
+* Where to locate service
+```bash
+# /etc/init.d
+# systemctl
+# systemd suite
+```
+
+* To report routes
+```bash
+ip route
+```
+
+* To get the next hop to a particular ip address
+```bash
+ip route get 8.8.8.8
+```
+
+* To watch traffic on port 80 and report any packet that includes the string "Bash"
+```bash
+ngrep -q -c 64 Bash port 80
+# -q is for printing headers and payload only
+# -c is number of columns to use for payload data
+```
+
+* To analyze and capture packets with tcpdump
+```bash
+# capture only 50 packets, without -c it will capture untill killed
+tcpdump -w /tmp/tcpdump.raw -c 50
+# display packets for a given port (e.g. http)
+tcpdump -r /tmp/tcpdump.raw port http
+# to see the content too, in addition to headers
+tcpdump -X -r /tmp/tcpdump.raw port http
+```
+
 * To list password related info for a user
 ```bash
 chage -l userName
@@ -447,4 +627,36 @@ more dpkg
 ```bash
 more /var/log/auth.log # or /var/log/secure.log
 grep "Failed pass" /var/log/auth.log
+```
+
+* Important directories
+```bash
+# /bin: commands used by a regular user
+# /boot: files required for the os startup
+# /dev: device driver files
+# /etc: config files and startup scripts
+# /home: home folder of all users
+# /lib: library files
+# /media: external media, such as USB pen drive
+# /opt: optional packages
+# /proc: info about kernel and every process running
+# /root: admin's home folder
+# /sbin: admin commands
+# /usr: secondary programs, libraries, and documentation
+# /var: variable data, such as logs
+# /sys: creates sys files
+```
+
+* Types of processes
+```bash
+# orphan: parent process is terminated
+# zombie: child process is terminated, but parent
+#         is sleeping or is suspended, child is zombie
+# daemon: running in the background
+```
+
+* To list all processes including system processes
+```bash
+ps -ef
+# those processes within [] are kernel threads
 ```

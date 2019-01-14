@@ -85,8 +85,17 @@
 * `wget`: to download urls
 * `curl`: to download urls
 * `logger`: log messages into the system log
+* `cut`: to remove sections from each line
+* `join`: to join lines of two files on a common field
 
 ## Command Examples
+* To print fields from 1 to 5 from a file
+```bash
+cut -d: -f1,5 /etc/passwd
+# to show characters 1 to 3 and 7 to 12
+cut -c1-3,7-12 /path/to/input.file
+```
+
 * To log messages
 ```bash
 logger message
@@ -514,6 +523,15 @@ export LESS="-N -i -X -Q"
 jobs
 # to see pids too
 jobs -l
+```
+
+* To bring a background job to foreground
+```bash
+jobs
+fg 3
+# press CTRL-Z to stop the process
+# to resume the process running again
+bg 3
 ```
 
 * To measure the time it takes to run a command
@@ -1139,6 +1157,28 @@ file -b file.path
 paste input1.txt input2.txt -d ","
 ```
 
+* To join two files on a common field
+```bash
+cat one.txt
+1 Joe
+2 Jane
+3 Jeremy
+4 Ahmed
+5 Xian
+cat two.txt
+1 10
+2 10
+3 10
+4 10
+5 10
+join one.txt two.txt
+1 Joe 10
+2 Jane 10
+3 Jeremy 10
+4 Ahmed 10
+5 Xian 10
+```
+
 * To print files in reverse order
 ```bash
 tac input.file
@@ -1223,4 +1263,11 @@ scp local.file userName@remotehost:/remote/path
 scp userName@remotehost:/remote/path/remote.file local.file
 # to recursively copy a directory
 scp -r local.directory userName@remotehost:/remote/path
+```
+
+* To change permissions on a file
+```bash
+# user, group, others
+chmod ugo+rwx file
+chmod 777 file
 ```
