@@ -197,6 +197,16 @@
 * for loop, iterating files, file name matching
 
 # Notes
+* Brace expansion
+```bash
+mkdir dir{1,2,3}{a,b}
+ls
+# dir1a dir1b dir1c dir2a dir2b dir2c dir3a dir3b dir3c
+touch file{a..z}
+ls
+# filea fileb filec .... filex filey filez
+```
+
 * To see all defined shell variables and values
 ```bash
 set | less
