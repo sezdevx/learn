@@ -59,6 +59,8 @@ sudo apt install inotify-tools
 sudo apt-get install sqlite3 libsqlite3-dev
 # for mysql
 sudo apt-get install mysql-server
+# for gtags
+sudo apt-get install global
 ```
 
 ## Install Apps

@@ -22,6 +22,11 @@ To run the examples below `emacs -batch -l file_name.el`
 * add-to-list function
 * cons, cdr, car
 
+# Emacs packages to install
+```
+ggtags ; used with (gtags from global apt package)
+```
+
 # Emacs
 * To debug configuration
 ```
@@ -31,6 +36,11 @@ emacs --debug-init
 * To run a file in batch mode
 ```
 emacs -batch -l lisp_code.el
+```
+
+* To list packages
+```
+Meta-x package-list-packages
 ```
 
 * To select a region
@@ -46,6 +56,13 @@ Ctrl-x Ctrl-x
 * To mark (select) the whole buffer
 ```
 Ctrl-x h
+```
+
+* To move to right or left the selected region
+```
+; after selecting the region
+Ctrl-x TAB
+; then left or right arrows to indent
 ```
 
 * To count number of lines, words and characters in a region
@@ -172,7 +189,7 @@ Ctrl-x ^: make the window larger vertically
 
 * To run a command
 ```
-M-x: type the command name
+Meta-x: type the command name
 ```
 
 * Managing buffer
@@ -190,10 +207,10 @@ Ctrl-f: one character forward
 Ctrl-b: one character backward
 Ctrl-n: next line
 Ctrl-p: previous line
-M-f: move one word forward
-M-b: move one word backward
-M-{: previous paragraph
-M-}: next paragraph
+Meta-f: move one word forward
+Meta-b: move one word backward
+Meta-{: previous paragraph
+Meta-}: next paragraph
 Ctrl-a: beginning of current line
 Ctrl-e: end of current line
 ```
@@ -236,6 +253,22 @@ Ctrl-y: yank the most recently killed text
 Ctrl-u Ctrl-y: same as Ctrl-y, but cursor is going to be at the beginning of the text
 ```
 
+* To find the face at point
+```
+Ctrl-u Ctrl-x =
+```
+
+* To highlight a symbol at point
+```
+Meta-s .
+```
+
+* To see indentation symbol for a given line
+```
+; go to the line you want to indent
+Ctrl-c Ctrl-o
+```
+
 ## Emacs Lisp
 
 * The following are the same
@@ -244,24 +277,24 @@ Ctrl-u Ctrl-y: same as Ctrl-y, but cursor is going to be at the beginning of the
 (set (quote x) 1)
 ```
 
-* To run an interactive lisp command line interface
+* To run (evaluate) an interactive lisp command line interface
 ```
-M-X ielm
+Meta-x ielm
 ```
 
 * To evaluate a selected region
 ```
-M-X eval-region
+Meta-x eval-region
 ```
 
 * To evaluate the whole buffer
 ```
-M-X eval-buffer
+Meta-x eval-buffer
 ```
 
 * To find the doc string of a function
 ```
-M-x describe-function
+Meta-x describe-function
 Ctrl-h f
 ```
 
