@@ -22,6 +22,11 @@ To run the examples below `emacs -batch -l file_name.el`
 * add-to-list function
 * cons, cdr, car
 
+## [load_paths.el](load_paths.el)
+* load-path list
+* mapcar function
+* message
+
 # Emacs packages to install
 ```
 ggtags ; used with (gtags from global apt package)
@@ -243,7 +248,7 @@ may be set to have default values.
 Ctrl-d: delete a single character to the right of the point
 Meta-\: delete all space and whitespace around point
 Ctrl-k: delete current line
-Ctrl-x Ctrl-o: delete all empty lines around the current line
+;;Ctrl-x Ctrl-o: delete all empty lines around the current line
 Meta-d: delete a word to the right of the point
 ```
 
@@ -267,6 +272,21 @@ Meta-s .
 ```
 ; go to the line you want to indent
 Ctrl-c Ctrl-o
+```
+
+* To run a terminal in emacs
+```
+Meta-x term
+# to scroll up or down go into line mode (C-c C-j)
+# (C-c C-k) to go back into char mode
+Meta-x shell
+```
+
+* To find occurrences of a regular expression
+```
+Meta-s o
+; to move to the next occurrence in the list
+Ctrl-x `
 ```
 
 ## Emacs Lisp
