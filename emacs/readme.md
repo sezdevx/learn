@@ -37,6 +37,12 @@ To run the examples below `emacs -batch -l file_name.el`
 * max, min functions
 * number, integer, float predicates
 
+## [strings.el](strings.el)
+* string predicate
+* make-string function
+* characters
+* substring
+
 # Emacs packages to install
 ```
 ggtags ; used with (gtags from global apt package)

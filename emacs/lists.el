@@ -19,3 +19,4 @@
 (message "First in the list is %s" (car names))
 (message "The rest of the list is")
 (mapcar (quote hello) (cdr names))
+

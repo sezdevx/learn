@@ -17,4 +17,11 @@
 (message "is 1 > 1: %s" (> 1 1))
 (message "max is %d" (max 1 32 2 5 8 9 100 99 88 12))
 (message "min is %d" (min 1 32 2 5 8 9 100 99 88 12))
+(message "Truncate 1.2 -> %d | 1.7 -> %d | -1.7 -> %d" (truncate 1.2) (truncate 1.7) (truncate -1.7))
+(message "Round 1.2 -> %d | 1.7 -> %d | -1.7 -> %d" (round 1.2) (round 1.7) (round -1.7))
 
+(setq x 12)
+(message "x + 1 = %d " (1+ x))
+(message "x + x + x = %d " (+ x x x))
+(message "x * x * x = %d " (* x x x))
+(message "Random Number Up to 10: %d" (random 10))
