@@ -27,6 +27,16 @@ To run the examples below `emacs -batch -l file_name.el`
 * mapcar function
 * message
 
+## [version_info.el](version_info.el)
+* emacs version
+* major version
+* minor version
+
+## [numbers.el](numbers.el)
+* Comparison
+* max, min functions
+* number, integer, float predicates
+
 # Emacs packages to install
 ```
 ggtags ; used with (gtags from global apt package)
@@ -131,6 +141,18 @@ Ctrl-u 8 cmd
 ```
 Ctrl-h k
 ; then type the key
+```
+
+* To find the doc string of a function
+```
+Meta-x describe-function
+Ctrl-h f
+```
+
+* To find the doc string of a variable
+```
+Meta-x describe-variable
+Ctrl-h v
 ```
 
 * To search a command with a partial name
@@ -302,6 +324,12 @@ Ctrl-x `
 Meta-x ielm
 ```
 
+* To run a shell (like ielm)
+```
+; https://www.gnu.org/software/emacs/manual/html_mono/eshell.html
+Meta-x eshell
+```
+
 * To evaluate a selected region
 ```
 Meta-x eval-region
@@ -310,12 +338,6 @@ Meta-x eval-region
 * To evaluate the whole buffer
 ```
 Meta-x eval-buffer
-```
-
-* To find the doc string of a function
-```
-Meta-x describe-function
-Ctrl-h f
 ```
 
 * To print a message. The message will also appear in `*Messages*` buffer
