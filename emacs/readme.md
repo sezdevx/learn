@@ -22,6 +22,19 @@ To run the examples below `emacs -batch -l file_name.el`
 * add-to-list function
 * cons, cdr, car
 
+## [sequences.el](sequences.el)
+* length
+* elt
+* copy-sequence
+* reverse
+* sort
+
+## [arrays.el](arrays.el)
+* arrayp
+* fillarray
+* make-vector
+* vectorp
+
 ## [load_paths.el](load_paths.el)
 * load-path list
 * mapcar function
@@ -91,7 +104,7 @@ Ctrl-x TAB
 Meta-=
 ```
 
-* To delete the whole region
+* To (cut) delete the whole region
 ```
 Ctrl-w
 ```
@@ -189,6 +202,12 @@ Ctrl-o
 * To cancel a command in the minibuffer
 ```
 Ctrl-g
+```
+
+* To display colors and faces
+```
+Meta-x list-colors-display
+Meta-x list-faces-display
 ```
 
 * The completion

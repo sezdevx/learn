@@ -1,6 +1,5 @@
 (defun hello(name)
-    (message "Hello %s" name)
-)
+    (message "Hello %s" name))
 
 (setq name (read-from-minibuffer "Enter your name: "))
 (hello name)

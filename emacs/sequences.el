@@ -1,0 +1,21 @@
+(defun hello(name) (message "Hello %s" name))
+
+(message "%d" (length '(a b c)))
+(message "%d" (length [a b c]))
+(message "%d" (length "abcde"))
+(message "%d" (length (make-bool-vector 10 t)))
+(message "%s" (elt '(a b c d e) 0))
+(message "%s" (elt '(a b c d e) 1))
+(message "%s" (elt '(a b c d e) 2))
+(message "%s" (elt '(a b c d e) 3))
+(message "%s" (elt '(a b c d e) 4))
+
+(setq foo '(1 2 3))
+(setq bar (copy-sequence foo))
+(message "%s" (eq foo bar))
+(message "%s" (equal foo bar))
+
+(message "%s" foo)
+(message "%s" (reverse foo))
+(message "%s" (sort '(32 12 99 12 0 1 88 4) '>))
+(message "%s" (sort '(32 12 99 12 0 1 88 4) '<))
