@@ -1,5 +1,21 @@
+# Online resources
+* [emacs rocks](http://emacsrocks.com/)
+* [xah emacs](http://ergoemacs.org/)
+* [what the emacs.d](http://whattheemacsd.com/)
+* [Emacs Elisp Programming](https://github.com/caiorss/Emacs-Elisp-Programming)
 # Emacs Lisp (elisp)
 To run the examples below `emacs -batch -l file_name.el`
+
+## [emacs.el](emacs.el)
+* insert: inserts text to the current buffer
+* switch-to-buffer: switch to another buffer with the name or buffer object
+* current-buffer: current buffer
+* other-buffer: other buffer (based on some order)
+* buffer-string: to get the string of the whole buffer
+* defun: to define a function
+* getenv, concat, split-string
+* extract documentation of a function
+
 
 ## [simple_arithmetic.el](simple_arithmetic.el)
 * using message to output to stderr
@@ -52,6 +68,7 @@ To run the examples below `emacs -batch -l file_name.el`
 
 ## [strings.el](strings.el)
 * string predicate
+* concat
 * make-string function
 * characters
 * substring
@@ -75,6 +92,10 @@ emacs -batch -l lisp_code.el
 * To list packages
 ```
 Meta-x package-list-packages
+; to install a package : i
+; to unmark a package: u
+; to delete a package: d
+; to quit the interface: q
 ```
 
 * To select a region
@@ -182,6 +203,7 @@ Ctrl-h a
 * To see all key bindings
 ```
 Ctrl-h b
+Meta-x describe-bindings
 ```
 
 * To make the buffer read-only
@@ -251,6 +273,12 @@ Ctrl-x b: switch to buffer
 Ctrl-x Ctrl-b: list all buffers
 Ctrl-x Ctrl-s: save buffer to a file
 Ctrl-x Ctrl-w: save to a specific file
+```
+
+* To go to the next buffer
+```
+Ctrl-x left: to go to the previous buffer
+Ctrl-x right: to go to the next buffer
 ```
 
 * Moving around
