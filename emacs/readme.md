@@ -3,6 +3,8 @@
 * [xah emacs](http://ergoemacs.org/)
 * [what the emacs.d](http://whattheemacsd.com/)
 * [Emacs Elisp Programming](https://github.com/caiorss/Emacs-Elisp-Programming)
+* [Emacs Wiki](https://www.emacswiki.org/emacs/SiteMap)
+
 # Emacs Lisp (elisp)
 To run the examples below `emacs -batch -l file_name.el`
 
@@ -275,7 +277,7 @@ Ctrl-x Ctrl-s: save buffer to a file
 Ctrl-x Ctrl-w: save to a specific file
 ```
 
-* To go to the next buffer
+* To go to the next or previous buffer
 ```
 Ctrl-x left: to go to the previous buffer
 Ctrl-x right: to go to the next buffer
