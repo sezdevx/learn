@@ -42,3 +42,50 @@
     (buffer-substring-no-properties (point-min) (point-max))))
 
 (message "%s" (read-file "/etc/hosts"))
+(message "System Type: %s" system-type)
+
+(defun read-user-file ()
+  "File name reading example"
+  (interactive)
+  (message "File name is %s" (read-file-name "Enter file name:")))
+
+(defun read-user-dir ()
+  "Dir name reading example"
+  (interactive)
+  (message "Dir name is %s" (read-directory-name "Enter directory name:")))
+
+(defun read-user-str ()
+  "String reading example"
+  (interactive)
+  (message "String is %s" (read-string "Enter string:")))
+
+(if (y-or-n-p "Do it?")
+    (message "Done")
+  (message "Not Done"))
+
+(defun ask-name (x)
+  "Ask name."
+  (interactive "sEnter your name: ")
+  (message "Name: %s" x))
+
+(defun ask-age(x)
+  "Ask age."
+  (interactive "sEnter your age: ")
+  (message "Age: %d" x))
+
+(defun ask-name-age(x y)
+  "Ask name and age."
+  (interactive "sEnter you name:
+nEnter your age:" )
+  (message "Name: %s Age: %d" x y))
+
+(message "%d" (line-beginning-position))
+(message "%d" (line-end-position))
+
+;; grabs the current line
+(setq currentLine
+      (buffer-substring-no-properties
+       (line-beginning-position)
+       (line-end-position)
+       ))
+

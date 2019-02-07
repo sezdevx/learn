@@ -4,9 +4,23 @@
 * [what the emacs.d](http://whattheemacsd.com/)
 * [Emacs Elisp Programming](https://github.com/caiorss/Emacs-Elisp-Programming)
 * [Emacs Wiki](https://www.emacswiki.org/emacs/SiteMap)
+* [Emacs Starter Kits](https://github.com/eschulte/emacs-starter-kit)
+* [Starter Kits](https://www.emacswiki.org/emacs/StarterKits)
 
 # Emacs Lisp (elisp)
 To run the examples below `emacs -batch -l file_name.el`
+
+## Somewhat useful modes
+* whitespace-mode
+
+## [lorem.el](lorem.el)
+* Defining functions
+* Assigning a global key to a function
+* Use it with `load-file` from within emacs
+* Format time string, current time
+* current-kill, current-buffer, condition-case
+* thing-at-point
+* insert
 
 ## [emacs.el](emacs.el)
 * insert: inserts text to the current buffer
@@ -17,6 +31,8 @@ To run the examples below `emacs -batch -l file_name.el`
 * defun: to define a function
 * getenv, concat, split-string
 * extract documentation of a function
+* read-string, read-file-name, read-directory-name
+* using interactive form to get user input for function arguments
 
 
 ## [simple_arithmetic.el](simple_arithmetic.el)
@@ -538,6 +554,7 @@ Ctrl-x Ctrl-e
 (region-end) ; position of the end of the selection
 (line-beginning-position)
 (line-end-position)
+(message "%s" (current-word)); prints the current word
 ```
 
 ```
@@ -560,6 +577,7 @@ Ctrl-x Ctrl-e
 (insert "Hello World")
 (setq x (buffer-substring 30 300)) ; x is assigned to substring of the buffer
 (capitalize-region 30 300)
+(erase-buffer) ; erase the current buffer
 ```
 
 ```
@@ -596,5 +614,74 @@ Ctrl-x Ctrl-e
 (file-name-sans-extension "/tmp/whatever/file.txt") ;/tmp/whatever/file
 ```
 
+```
+; Cursor
+(message "%d" (point)) ; current cursor position
+(message "%d" (region-beginning)) ; beginning of selected region
+(message "%d" (region-end)) ; end of selected region
+(message "%d" (point-min)) ; beginning of the buffer
+(message "%d" (point-max)) ; end of the buffer
+(goto-char 300) ; go to char position 300
+(forward-char 3) ; move cursor 3 chars forward
+(backward-char 3) ; move cursor 3 chars backward
+(beginning-of-line); move the cursor to the beginning of line
+(end-of-line); move the cursor to the end of line
+(search-forward "foo") ; move forward to the first matched foo string
+(search-backward "foo") ; move backward to the first matched foo string
+(re-search-forward "[0-9]+") ; move forward to the first matched regex
+(re-search-backward "[0-9]+") ; move backward to the first matched regex
+```
 
+```
+; get current line
+(message "%s" (buffer-substring-no-properties (line-beginning-position) (line-end-position) ))
+; get things at the point: filename, word, symbol, list, sexp, defun, url, email, sentence ...
+(setq str (thing-at-point 'filename))
+(message "%d" (line-beginning-position))
+(message "%d" (line-end-position))
+(forward-line -1) ; previous line
+(forward-line 1) ; next line
+```
 
+```
+; cut/copy/paste
+(kill-region 1 100) ; cuts the first 100 chars
+(copy-region-as-kill 1 100) ; copies the first 100 chars
+(kill-new "this is copied to kill ring")
+(yank) ; to paste from the kill ring
+```
+
+```
+; to get the universal argument C-u and then a number into your function
+; http://ergoemacs.org/emacs/elisp_universal_argument.html
+(defun f (x)
+  "example"
+  (interactive "P")
+  (message "%s" x)
+)
+```
+
+```
+(defun r (searchStr)
+  "example"
+  (interactive "sEnter search string:")
+  (let ((case-fold-search t)) ; make it case insensitive
+
+  (goto-char (point-min))
+
+  (while (search-forward searchStr nil t)
+    (replace-match "Hello World"))
+  )
+)
+```
+
+```
+; to process marked dired files
+; use m to mark them, use u to unmark them
+(defun dired-process-file ()
+  "apply a function to all marked files in dired."
+  (interactive)
+  (require 'dired)
+  (mapc 'customProcessFile (dired-get-marked-files))
+)
+```
