@@ -382,6 +382,14 @@ Meta-s o
 Ctrl-x `
 ```
 
+## Useful C/C++ keys
+* `Meta-a`: beginning of statement
+* `Meta-e`: end of statement
+* `Control-Meta-a`: beginning of function
+* `Control-Meta-e`: end of function
+* `Control-Meta-h`: marks the current function
+* `Control-c Control-q`: indent the function
+
 ## Emacs Lisp
 
 * The following are the same
