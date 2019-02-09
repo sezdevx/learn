@@ -214,5 +214,10 @@ n: find the next occurrence
 / then UP or DOWN to go over the history
 :set hlsearch: to highlight search results
 :nohlsearch
+:set incsearch: do incremental search
+:set noincsearch: do not do incremental search
+?string: search string backward
+?<Enter>: to change the search direction
+N: reverse search and search again
 ```
 
