@@ -57,6 +57,10 @@ Ctrl-r
 ```
 dd
 ```
+* To delete a word
+```
+dw
+```
 
 * To add a new line below the current line and switch to insert mode
 ```
@@ -120,6 +124,21 @@ dw
 d$
 ```
 
+
+* To delete a word multiple times
+```
+d3w: delete three words once
+3dw: delete one word 3 times
+```
+
+* Change word
+```
+cw: delete a word and go into insert mode
+cc: delete a line and go into insert mode
+c$: delete till end of line and go into insert mode
+C: delete till end of line and go into insert mode
+```
+
 * Move by word
 ```
 w: move forward over a word
@@ -136,5 +155,62 @@ Home: real beginning of line
 
 * Searching in a line
 ```
-
+fy: search y to the right within the same line
+Fy: search y to the left within the same line
+ty: search y to the right but stop before the letter
+Ty: search y to the left but stop after the letter
 ```
+
+* Go to a line number
+```
+9G: go to line 9
+180G: go to line 180
+```
+
+* To show line numbers
+```
+:set number: turn on line numbers
+:set nonumber: turn off line numbers
+```
+
+* Display where you are in a status line
+```
+Ctrl-g: display a status line
+```
+
+* Scroll up and down
+```
+Ctrl-U: up half a screen
+Ctrl-D: down half a screen
+```
+
+* To join lines
+```
+J
+```
+
+* To replace a character with a new character
+```
+rs: replace the current char with s
+5ra: replace 5 chars with a
+```
+
+* Swap letter cases
+```
+~: change upper to lower case, lower to upper case
+```
+
+* Recording and stopping macros
+```
+qa: start recording a macro and store it in register a
+q: stop recording the macro
+@a: execute macro stored in a
+```
+
+* Simple search
+```
+/string: search string
+n: find the next occurrence
+/ then UP or DOWN to go over the history
+:set hlsearch: to highlight search results
+:nohlsearchk```
