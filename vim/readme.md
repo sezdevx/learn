@@ -213,4 +213,6 @@ q: stop recording the macro
 n: find the next occurrence
 / then UP or DOWN to go over the history
 :set hlsearch: to highlight search results
-:nohlsearchk```
+:nohlsearch
+```
+
