@@ -406,11 +406,392 @@ Ctrl-w]: split the window and go to the function definition
 * Makefiles
 ```
 :set list: to show tabs and new lines
+:set nolist: hide tabs and new line indicators
 Ctrl-V<Tab>: if expandtab is set, to insert a tab
 ```
 
+* How to sort multiple lines
+```
+go to the start of the list
+mark this location with ma
+go to the bottom of the list
+!'a sort
 
+In visual mode
+Press V and select the text
+!sort
+```
 
+* Making
+```
+:make
+:cnext (next error)
+:clast
+:cprevious
+:cfirst (:crewind)
+:cnfile (next error in the second file in the list)
+:cc (current error)
+:clist (list of errors)
+:clist 3,5 (errors 3 through 5)
+:clist 5, (errors 5 through the end)
+:cquit (exit with an error code 1)
+```
+
+* Grepping
+```
+:grep estimate *.c
+then move among results using cc, clist clast etc...
+```
+
+* Abbreviatins
+```
+:abbreviate us using
+:abbreviate (to list all abbreviations)
+to insert a space in abbreviation use <space>
+```
+
+* Mapping keys
+```
+" Insert {} around a word under the cursor
+:map <F4> i{<Esc>ea}<Esc>
+:map (list all mappings)
+```
+
+* Controlling how backspace key works
+```
+:set backspace=indent
+:set backspace=eol
+:set backspace=start
+:set backspace=indent,eol (1)
+:set backspace=indent,eol,start (2)
+```
+
+* To see which files are being read
+```
+:version
+```
+
+* Auto commands
+```
+" only for c, c++ files
+:autocmd FileType c,cpp set formatoptions=croql
+    \nocindent comments&
+" for all files
+:autocmd FileType * set formatoptions=tcql
+```
+
+* Setting the text width
+```
+:set textwidth=80
+```
+
+* Showing line numbers
+```
+:set number
+```
+
+* Printing lines
+```
+:1,5 print (print lines 1 through 5)
+:print (print current line)
+:. print (print current line)
+:1,$ print (print lines 1 through the end)
+:% print (print lines 1 through the end)
+:1,/estimate/print (print lines 1 through the line that contains estimate)
+```
+
+* Marking and printing
+```
+ma
+move and then
+mz
+:'a,'z print (prints from a to z position)
+```
+
+* Visual mode
+```
+V
+:print
+```
+
+* Substitute command
+```
+:range substitute /from/to flags
+:% substitute /exxcell/excell/g
+g: global
+p: print the modified line
+c: ask for confirmation
+  - y: make this replacement
+  - n: skip this replacement
+  - a: replace all remaining without confirmation
+  - q: quit, don't make any more changes
+  - Ctrl-E: scroll one line up
+  - Ctrl-Y: scroll one line down
+:% s /\([^,]*\),\(.*\)$/\2,\1/g
+```
+
+* Reading a file and inserting it
+```
+:read filename
+you can highlight a text and write it to a file with
+:'<,'>write filename
+```
+
+* Go to shell
+```
+:shell
+When done type exit
+```
+
+* Settings the text width
+```
+:set textwidth=80
+```
+
+* To format a piece of text into a paragraph
+```
+Select the text in visual mode
+gq
+Or
+gq5j (format the next 5 lines)
+```
+
+* To center text
+```
+:1,5 center 50
+select text and then :center 50
+```
+
+* To create left margin
+```
+:1,5 left 5
+```
+
+* To control how J joins two lines
+```
+:set joinspaces (if the current line ends with . two spaces are inserted)
+:set nojoinspaces (only a single space is added)
+```
+
+* formatoptions
+```
+:set formatoptions=characters
+t: automatically wrap text
+c: automatically wrap comments
+r: insert comment leader when a new line is inserted
+o: insert comment leader when a new line is created
+q: allow gq to format comments
+2: format based on the indent of the second line
+v: do old style vi text wrapping
+b: wrap only on blanks you type
+l: do not break line in insert mode
+```
+
+* Using an external formatting program
+```
+:set formatprg=fmt
+```
+
+* Setting file format
+```
+" try unix first, then ms-dos
+:set fileformats=unix,dos
+" to see the detected file format
+:set fileformat?
+" to set the current file format
+:set fileformat=unix
+```
+
+* End of file line
+```
+" the file ends with a linew always
+:set endofline
+:set noendofline
+```
+
+* Text moving commands
+```
+): one sentence forward
+(: one sentence backward
+}: one paragraph forward
+{: one paragragh backward
+```
+
+* Auto completion
+```
+Ctrl-p
+Another Ctrl-p and VIM searches again for completion
+Ctrl-n: searches forward for completion
+:set ignorecase (ignore case when searching for completion)
+:set complete=key,key,key
+    .: current file
+    b: files in loaded buffers
+    d: definitions in current file and in files included with #include
+    i: files included with #include
+    t: tags file
+    u: unloaded buffers
+    w: files in other windows
+    k: file defined in dictionary
+    kfile: file named "file"
+```
+
+* Specifying a dictionary
+```
+:set dictionary=file,file...
+:set complete=k/usr/dict/words,k/usr/alt/words.txt
+```
+
+* Controlling what is searched by pressing Ctrl-x
+```
+Ctrl-d: macro definitions
+Ctrl-f: file names
+Ctrl-k: dictionary
+Ctrl-i: current files and includes
+Ctlr-l: whole lines
+Ctrl-]: tags
+Ctrl-p: same as Ctrl-p
+Ctrl-n: same as Ctrl-n
+```
+
+* Autocmd and groups
+```
+function DateInsert()
+    $read !date
+endfunction
+
+"map <F12> :call DateInsert()<CR>\|:write<CR>
+autocmd FileWritePre * :call DateInsert()<CR>
+
+augroup cprograms
+    autocmd FileReadPost *.c :set cindent
+    autocmd FileReadPost *.cpp :set cindent
+augroup END
+" same as before except not within the augroup block
+autocmd cprograms FileReadPost *.h :set cindent
+```
+
+* Events
+```
+BufNewFile
+BufReadPre
+BufReadPost (BufRead)
+BufFilePre
+BufFilePost
+FileReadPre
+FileReadPost
+FilterReadPre
+FilterReadPost
+StdinReadPre
+StdReadPost
+BufWritePre
+BufWritePost
+BufWrite
+FileWritePre
+FileWritePost
+FileAppendPre
+FileAppendPost
+FilterWritePre
+FilterWritePost
+FileChangedShell
+FocusGained
+FocusLost
+CursorHold
+BufEnter
+BufLeave
+BufUnload
+BufCreate
+BufDelete
+WinEnter
+WinLeave
+GuiEnter
+VimEnter
+VimLeavePre
+VimLeave
+FileEncoding
+```
+
+* File patterns: Same as unix file patterns
+
+* Listing all auto commands
+```
+:autocmd
+```
+
+* Remove an auto command group
+```
+:autocmd! gorupName
+:autocmd! gorupName event pattern
+```
+
+* You can ignore events
+```
+:set eventignore=WinEnter,WinLeave
+```
+
+* Read only mode
+```
+vim -R fileName
+view fileName
+```
+
+* To obscure file (weak encryption)
+```
+vim -x secret.txt
+" to turn off the encryption
+:set key=
+" to turn on the encryption
+:set key=secret (not a good idea)
+" instead do this
+:X
+```
+
+* Batch processing
+```
+cat changes.vim
+:%s/person/Jane/g
+:write
+:quit
+vim -es input.file <changes.vim
+```
+
+* Backups
+```
+:set backup
+:set backupext=.bak " instead of ~ .bak will be used
+:set patchmode=.org
+:set backupdir=~/tmp/
+```
+
+* To get a list of recoverable files
+```
+vim -r
+" to get the swap file name for the current buffer
+:swapname
+" for turning off swap files
+:set noswapfile
+" configuring swap files
+:set updatetime=23000
+:set updatecount=400
+```
+
+* To control where the swap file is written
+```
+:set directory=/tmp (Not good to set it to /tmp, because names will conflict)
+:set directory=.,/tmp
+```
+
+* To write to the swap file but not the real file
+```
+:preserve
+```
+
+* To recover a file
+```
+:recover file.txt
+vim -r file.txt
+" discard any changes to file.txt
+:recover! file.txt
+```
 
 
 
