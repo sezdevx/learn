@@ -1,3 +1,236 @@
+# Practical Vim
+* Dot command repeat the last changes `.`
+
+* To delete a single character `x`
+
+* Delete 10 characters `10x`
+
+* Undo: `u`
+
+* Delete a whole line and copy it into paste buffer `dd`
+
+* Copy line into paste buffer `yy`
+
+* Paste from paste buffer below cursor `p`
+
+* Paste from paste buffer above cursor 'P'
+
+* Left `h`
+
+* Down `j`
+
+* Up `k`
+
+* Right `l`
+
+* Go to the end of file `G`
+
+* Go to the beginning of file `gg`
+
+* Go to line 10 `10G`
+
+* Indent line `>[Right Arrow]`
+
+* Go to the end of line `$`
+
+* Go to the beginning of line `0`
+
+* Go to the beginning of line with a first non-whitespace character `^`.
+
+* Go to the end of line and start editing `A`
+
+* Go to the beginning of line and start editing `I`
+
+* Start editing after cursor `a`
+
+* Start editing before cursor `i`
+
+* Insert a new line before current line and start editing `O`
+
+* Insert a new line below current line and start editing `o`
+
+* To delete text and start editing `c`
+
+* To change a word forward `cw`
+
+* To change a word backwards `cb`
+
+* To delete till the end of line and start editing `C`
+
+* To delete the whole line and start editing `S`
+
+* To delete a single character and start editing `s`
+
+* Move forward one word `w`
+
+* Move backward one word `b`
+
+* Delete one word forward `dw`
+
+* Delete one word backward `db`
+
+* Search forward a character in the current line `f`{char}
+
+* Search backward a character in the current line `f`{char}
+
+* Search forward a character in the current line the cursor is placed on the left of the char `t`{char}
+
+* Search backward a character in the current line the cursor is placed on the left of the char `t`{char}
+
+* Repeat the last char search `;`
+
+* Repeat the last char search but reverse direction `;`
+
+* Scan file forward for next match `/pattern`
+
+* Scan file backward for next match `?pattern`
+
+* Go to the next match `n`
+
+* Go to the next match but reverse direction `N`
+
+* Substitute target with replacement `:s/target/replacement`
+
+* Substitute target with replacement globally `:%s/target/replacement/g`
+
+* To search the word under the cursor `*`
+
+* To increase or decrease a number under the cursor `Ctrl-a` and `Ctrl-x`
+Prefix it with a number to increase or decrease that much.
+
+* Change `c`
+
+* Delete `d`
+
+* Yank (copy) into register `y`
+
+* Make lower case `gu`
+
+* Make upper case `gU`
+
+* Swap case `g~`
+
+* Shift right `>`
+
+* Shift left `<`
+
+* Auto indent `=`
+
+* Filter lines through an external program `!`
+
+* Insert mode commands. `Ctrl-h` to delete back one character.
+`Ctrl-w` to delete back one word. `Ctrl-u` to delete back to start of line.
+
+* Switch to normal mode `Esc` or `Ctrl-[`
+
+* Switch to insert normal mode `Ctrl-o`, a single command can be executed
+but then it returns back to insert mode.
+
+* Redraw screen with current line in the middle of window `zz`
+
+* In insert mode paste from register `Ctrl-r{register}`
+
+* In insert mode evaluate an expression and insert the result `Ctr-l=`
+
+* To insert any character with its number `Ctrl-v065` inserts A, or
+`Ctrl-vu263a` inserts ☺.
+
+* To see the numeric value of any character `ga` shows the character
+under cursor
+
+* To literally insert a tab character `Ctrl-V<Tab>`
+
+* To insert a digraph `Ctrl-k{char1}{char2}`. To view digraphs `:digraphs`.
+
+* To replace characters `R`
+
+* To replace characters where a tab is considered as space `gR`
+
+* Visual mode character wise `v`
+
+* Visual mode line wise `V`
+
+* Block wise visual mode `Ctrl-v`
+
+* Go to the other end of selection while in visual mode `o`
+
+* In visual mode you can use commands such as `w` or `b` for forward and backward word selection.
+
+* Delete lines from 1 to 5 `:1,5delete`
+
+* Copy lines from 1 to 6 `:1,5yank`
+
+* To go to the 23rd line `:23`
+
+* To go to the end of file `:$`
+
+* To print the current line `:print` `:p`
+
+* To print 3rd line `:3p`
+
+* To print from 2nd line to 5th line `:2,5p`
+
+* To print the whole file `:%p` or `:1,$p`
+
+* To print current line to 2 lines down from current line `:.,.+2p`
+
+* To go to a line marked in a `:'a`
+
+* To copy lines from 5,10 to line 1 `:5,10copy1` or `:5,10t1`
+
+* To duplicate the current line `:t.`
+
+* To copy the current line to the end of file `:t$`
+
+* To copy the currently selected text to the beginning of the file `:'<,'>t0`
+
+* To move lines `:[range]move{address}` e.g. `:1,2move$` or `:1,2m$`
+
+* To run a command in normal mode for multiple lines `:'<,'>normal.`
+
+* To enter a semicolon at the end of each line for all lines `:%normal A;`
+
+* To repeat the last ex command `@:`, after that you can press `@@` to repeat that again.
+
+* To choose a color scheme `:colorscheme [color_scheme_name]`
+
+* To list all possible completions `Ctrl-d`
+
+* To adjust command completions use `:command-complete`
+
+* While in command line copy the word under cursor and insert it into command prompt `Ctrl-r Ctrl-w`
+
+* To search for the current word under the cursor `*`
+
+* To go through history of commands `:` and the press `<up>` and `<down>` keys.
+
+* To go through history of search history `/` and then press `<up>` and `<down>` keys.
+
+* To cancel an operation in command line `Ctrl-c`
+
+* To get into the command line window `q:`
+
+* While editing a command you can get into command line window by pressing `Ctrl-f`
+
+* To get into the search history window `q/`
+
+* Executing programs from the shell `!ls`
+
+* In command line `%` refers to the current file name
+
+* To go to shell temporarily `:shell` and when you type exit you get back to vim
+
+* To pass the contents of the file to a command `:write ! sh` will execute
+each line in the file in a sub-shell.
+
+* To sort a range of lines `:2,$!sort -t',' -k2`, this will replace the lines too
+so that the range is sorted.
+
+* To execute a shell command and insert its output `read !ls`
+
+* Execute a shell command with the range of lines from the current buffer as input
+`1,5write !more`
+
 ## Basics
 * Insert mode, normal mode
 ```
