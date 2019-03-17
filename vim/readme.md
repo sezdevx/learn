@@ -79,6 +79,8 @@
 
 * Repeat the last char search `;`
 
+* Repeat the last char search in the opposite direction `,`
+
 * Repeat the last char search but reverse direction `;`
 
 * Scan file forward for next match `/pattern`
@@ -230,6 +232,204 @@ so that the range is sorted.
 
 * Execute a shell command with the range of lines from the current buffer as input
 `1,5write !more`
+
+* To execute a vim script on a file `:source batch.vim`
+
+* To navigate between files provided through command line `:first` `:last` `:next` `:previous`
+
+* To get the command line arguments `:args`
+
+* To execute a batch command on all files given through command line `:argdo source batch.vim`
+
+* To see a list of files `:ls`
+
+* To navigate buffers `:bnext` `:bfirst` `:blast` `:bprevious` or `:buffer N` or `:buffer {bufferName}`
+
+* To delete a buffer `:buffer N` or `:buffer {bufferName}`
+
+* Populate args and open files `:args *.txt`
+
+* To reload a file discarding `:edit!`
+
+* To write all modified buffers `:wall`
+
+* To close all windows discarding changes `:qall!`
+
+* To split a window `Ctrl-w s` horizontally, to split a window vertically `Ctrl-w v`
+
+* To split horizontally and open a file `:split {file}`
+
+* To split vertically and open a file `:vsplit {file}`
+
+* To cycle between windows `Ctrl-w w` or `Ctrl-w Ctrl-w`
+
+* To focus on the window on the left `Ctrl-w h`
+
+* To focus on the window on the right `Ctrl-w l`
+
+* To focus on the window on the top `Ctrl-w k`
+
+* To focus on the window on the bottom `Ctrl-w j`
+
+* To close the active window `:close`
+
+* To keep the active window only open window `:only`
+
+* Equalize window sizes `Ctrl-w =`
+
+* Maximize height of the active window `Ctrl-w _`
+
+* Maximize width of the active window `Ctrl-w |`
+
+* Set the active window height to N rows `N Ctrl-w _`
+
+* Set the active window width to N rows `N Ctrl-w |`
+
+* To edit a file in a tab `:tabedit {filename}`
+
+* To move the current file into a tab `Ctrl-w T`
+
+* To close a tab `:tabclose`
+
+* To keep an active tab as the only tab `:tabonly`
+
+* To go to next tab `gt` or `:tabnext`
+
+* To go to previous tab `gT` or `:tabprevious`
+
+* To go to N tab `Ngt` or `:tabnext N`
+
+* To move the active tab to the end `:tabmove`
+
+* To move the active tab to the beginning `:tabmove 0`
+
+* To get the current working directory `:pwd`
+
+* To open a file relative to a current buffer `:edit %:h<TAB>`
+
+* Add a path `:set path+=~/`
+
+* Search in a path `:find fileName`
+
+* You can open a directory using `:edit dirName`
+
+* To open the directory of the current buffer `:Explore`
+
+* To go between the last two buffers `Ctrl-^` or `Ctrl-6`
+
+* To display line numbers `:set numbers`
+
+* To go up and down in display lines (not necessarily rea lines) `gk` `gj`
+
+* To go to the first character of the display line `g0`
+
+* To go to the end of a display line `g$`
+
+* To go to the first non-blank line of a display line `g^`
+
+* To go to the next WORD `W`
+
+* To select with a search enter visual mode with `v` then `/text`.
+
+* You can also delete with text search `d/text` deletes from current cursor till text.
+
+* Visual text object selection after pressing `v` `a)` or `i)` while within ().
+Others `a}`, `a]`, `a>`, `a'`, `a"` `at` to select xml tags.
+
+* Other text object selections `iw`, `iW`, `is`, `ip` or `aw` `aW` `as` `ap`.
+
+* Marking the current cursor location `m{a-zA-z}` to jump to the marker
+ line `'m`, to go the exact cursor location use backtick instead of '.
+
+* To jump to the matching parenthesis `%`
+
+* To go the position before the last jump within current file `''`
+
+* To list all jumps `:jumps`
+
+* To move between jumps `Ctrl-o` back `Ctrl-i` (or `TAB`) forward.
+
+* To go to a specific line `[count]G`
+
+* To jump to the top, middle and bottom of the screen `H` `M` and `L`
+
+* To jump to the file name under the cursor `gf`
+
+* To use with `gf` `:set suffixesadd+=.cc`
+
+* To inspect the path `:set path?`​
+
+* To jump the definition of the word under cursor `Ctrl ]`
+
+* Go to next and previous sentences `(` `)`
+
+* Go to the next and previous paragraphs `{` `}`
+
+* To see the change list `:changes`
+
+* To undo and then redo `u` then `Ctrl r`
+
+* Do a global mark that works across files `mV` and then `'V` to go to that file and line.
+Lowecase letters do local markers, uppercase letters mark global markers.
+
+* Paste before `P`, paste after `p`
+
+* To copy to a register `"ayW` to paste from register a `"ap`
+
+* To inspect the contents of a register `:reg "a`
+
+* Lowercase letter registers replaces the contents, whereas upper case letter
+registers append the contents.
+
+* To paste but go to the other side of the paste `gp` or `gP`
+
+* In insert mode you can insert any register by `Ctrl r` and then type the register name.
+
+* Paste from system clipboard `"+p`
+
+* To record a macro to a register `qa`, to stop recording the macro `q`. To look
+at the contents of the register `:reg a` and to run it `@a` or `@@` to invoke
+the last macro. To append to a register that already holds a macro use uppercase
+letter, e.g. `qA`
+
+* To swap case `~`
+
+* You can execute a macro on selected text using `:normal @a`
+
+* To save changes to all files `:wall`
+
+* To write and go to next file `:wnext`
+
+* To run a macro in all files in args `:argdo normal @a`
+
+* Assign a value to a variable `:let i=0`
+
+* Show the contents of a variable `:echo i`
+
+* Increment a variable `:let i+=1`
+
+* To put the contents of a register `:put a`. You can edit the line
+and store (yank) it back to a register with `0"ay$dd`.
+
+* To ignore case in searches `:set ignorecase`. Per search pattern you
+can use `\c` to ignore case and `\C` to force case sensitivity.
+
+* You can also set the smartcase option `:set smartcase` where if
+the pattern is all lowercase, the search is case insensitive, but
+a single upper case letter forces ignoring case.
+
+* To use a regular expression like perl's use `\v` flag e.g. `/\v([0-9]{3})
+
+* To go to the next search result `n`
+
+* To change the search direction `N`
+
+* To capture a regular expression `/\v(\w+)\_s+\1`, to make sure that
+we are talking about words `/\v<(\w+)>\_s+\1
+
+* To turn off the special meanings of `. + *` symbols, use `\V` e.g.
+`/Vhttp:\/\/domain.name/`, but you still need to escape some
+characters like `\/ \?`
 
 ## Basics
 * Insert mode, normal mode
