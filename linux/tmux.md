@@ -1,5 +1,5 @@
 ## tmux
-* Default command prefix is `Ctrl-b`, I changed it to `Ctrl-Space`
+* Default command prefix is `Ctrl-b`, but you can change it to `Ctrl-space`
 
 ### Outside the tmux
 * Create a new session `tmux`
@@ -16,23 +16,23 @@
 * Kill all sessions `tmux kill-server`
 
 #### Using keyboard
-* Detatch from tmux `Ctrl-Space-d`
-* Create a window within the same session `Ctrl-Space-c`
-  * To move between windows `Ctrl-Space-p` (previous) or `Ctrl-Space-n` (next)
-  * To jump to a specific window `Ctrl-Space-[0-9]`
-  * To choose a window or pane from a list `Ctrl-Space-w`
+* Detatch from tmux `Ctrl-b-d`
+* Create a window within the same session `Ctrl-b-c`
+  * To move between windows `Ctrl-b-p` (previous) or `Ctrl-b-n` (next)
+  * To jump to a specific window `Ctrl-b-[0-9]`
+  * To choose a window or pane from a list `Ctrl-b-w`
   * `exit` to close the window
-  * `Ctrl-Space-&` to kill all processes in an unresponive window
-* Split the window `Ctrl-Space-%` or `Ctrl-Space-"`
-  * To move between panes `Ctrl-Space-o`
-  * To switch to another pane `Ctrl-Space-arrow key`
-  * To zoom in on a pane `Ctrl-Space-z`
-  * To zoom out on a pane `Ctrl-Space-z`
-* To switch to another session `Ctrl-Space-(` or `Ctrl-Space-)`
+  * `Ctrl-b-&` to kill all processes in an unresponive window
+* Split the window `Ctrl-b-%` or `Ctrl-b-"`
+  * To move between panes `Ctrl-b-o`
+  * To switch to another pane `Ctrl-b-arrow key`
+  * To zoom in on a pane `Ctrl-b-z`
+  * To zoom out on a pane `Ctrl-b-z`
+* To switch to another session `Ctrl-b-(` or `Ctrl-b-)`
 * Type `exit` to kill a pane or a window or a session
 
 #### Resizing panes
-* `Ctrl-Space-:` to go to command mode in tmux
+* `Ctrl-b-:` to go to command mode in tmux
 * Assuming we are on the top pane
     * `resize-pane -U 2` to move the separator up 2 lines
     * `resize-pane -D 2` to move the separator down 2 lines

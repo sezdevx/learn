@@ -1,3 +1,79 @@
+* [Vim Wiki](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
+
+# Pro Vim
+* To go into command line window `q:` or while in command line mode `<C-f>`
+
+* To list the command history `:history`
+
+* To get documentation `:h text-objects`
+
+* Display key bindings for normal mode `:nmap`
+
+* Display key bindings for visual mode `:vmap`
+
+* Display key bindings for insert mode `:imap`
+
+* Display key bindings for all modes `:map`
+
+* To display help index `:h index`
+
+* To insert a file into the buffer `:read path-file-file`
+
+* To insert output of a shell script `:read !ls -a | grep -v '^\.'`
+
+* Go to the next buffer `:bn`
+
+* Go to the previous buffer `:bp`
+
+* List all buffers `:ls`
+
+* Go to a specific buffer (buffer 1) `:b1`
+
+* Switch between the last two buffers `<C-6>` or `<C-^>`
+
+* Go to the first buffer `:bf`
+
+* Go to the last buffer `:bl`
+
+* Go to the next modified buffer `:bm`
+
+* To write the buffer `:w`
+
+* To quit the vim `:q`
+
+* To quit and discard all changes `:qa!`
+
+* To write all modified buffers and quit `:wqa`
+
+* To create a new buffer in a horizonally split window `:new`
+
+* To create a new buffer within the current window `:enew`
+
+* To create a new buffer within a vertical split window `:vnew`
+
+* To create a new buffer within a new tab `:tabnew`
+
+* To get the full file path `%:p` e.g. `read !echo %:p` will insert
+the full path of the file into the current file.
+
+* You can change the current working directory of vim using
+`cd ~/projects/x`
+
+* To go to the header of the full path `cd %:p:h`
+
+* The general editing command structure `[count] {operator} {[count] motion | text object}`
+
+* To paste from a register `"2p`
+
+* To see register contents `:reg`
+
+* To do block editing in visual block mode `I`, or to append in block mode `A`
+
+* To append to end of line in visual block mode press `$` before selecting the block,
+so vim knows you are going to append to the end of each line.
+
+* (Closing the buffer but keeping the window)[https://vim.fandom.com/wiki/Deleting_a_buffer_without_closing_the_window#Alternative_Script]
+
 # Practical Vim
 * Dot command repeat the last changes `.`
 
@@ -430,6 +506,16 @@ we are talking about words `/\v<(\w+)>\_s+\1
 * To turn off the special meanings of `. + *` symbols, use `\V` e.g.
 `/Vhttp:\/\/domain.name/`, but you still need to escape some
 characters like `\/ \?`
+
+* To replace all occurrences of a searched text `:%s/test/text/g`.
+To replace just one occurrence in the current line `:s/test/text`.
+To replace all occurrences in a single line `:s/test/text/g`.
+In order to confirm before a change `:%s/test/text/gc`
+
+* Leaving the search text field blank tells vim to use the last
+pattern.
+
+
 
 ## Basics
 * Insert mode, normal mode
