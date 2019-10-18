@@ -3,6 +3,10 @@
 
 # Examples
 
+## [terminal_capabilities.sh](terminal_capabilities.sh)
+* save and restore terminal/screen content
+
+
 ## [file_type.sh](file_type.sh)
 * if then
 * case statement
@@ -389,4 +393,38 @@ a/ b/
 /etc/profile
 /etc/inputrc (system-wide Readline initialization)
 /etc/profile.d (system-wide for specific programs)
+/etc/bashrc or /etc/bash.bashrc (bash specific config)
 ```
+
+* Individual user config files
+```
+~/.bash_profile
+~/.bash_login
+~/.profile
+~/.bashrc
+~/.bash_logout
+```
+
+* To search bash history press `ctrl-r` and start typing
+
+* Some useful bash key bindings. Type to see all `bind -p`
+```
+Ctrl + t : swap two characters
+Alt + t : swap two words
+Alt + . : prints last argument from previous command
+Ctrl + x + * : expand glob/star in the command line before execution
+Ctrl + arrow : move forward a word
+Alt + f : move forward a word
+Alt + b : move backward a word
+Ctrl + x + Ctrl + e : opens the command line string in an editor so that you can edit it
+Ctrl + e : move cursor to end
+Ctrl + a : move cursor to start
+Ctrl + xx : move to the opposite end of the line
+Ctrl + u : cuts everything before the cursor
+Ctrl + k : cuts everything after the cursor
+Ctrl + y : pastes from the buffer
+Ctrl + l : clears screen
+```
+
+
+
