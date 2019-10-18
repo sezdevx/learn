@@ -1,3 +1,6 @@
+# Useful sites
+* [bash cheatsheet](https://devhints.io/bash)
+
 # Examples
 
 ## [file_type.sh](file_type.sh)
@@ -358,4 +361,32 @@ export -f funcName
 ```bash
 # when noclobber is in effect (always set noclobber)
 : >| file.name
+```
+
+* To disable globbing (file name generation using metacharacters)
+```
+set -f
+ls *
+ls: cannot access '*': No such file or directory
+set +f
+ls *
+...
+```
+
+* To print input lines as they are read
+```
+set -v
+ls
+ls
+a/ b/
+set +v
+ls
+a/ b/
+```
+
+* System wide config files
+```
+/etc/profile
+/etc/inputrc (system-wide Readline initialization)
+/etc/profile.d (system-wide for specific programs)
 ```
