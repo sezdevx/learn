@@ -6,6 +6,8 @@
 ## [terminal_capabilities.sh](terminal_capabilities.sh)
 * save and restore terminal/screen content
 
+## [horizontal_line.sh](horizontal_line.sh)
+* to generate a horizontal line dynamicall based on screen size
 
 ## [file_type.sh](file_type.sh)
 * if then
