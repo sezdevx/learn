@@ -108,6 +108,7 @@ sudo apt-get install global
 * `whereis`: location of the command, as well as the manual page
 * `whatis`: one line description of the command
 * `pgrep`: look up pid based on name
+* `pkill`: kill a process with process name
 * `killall`: kill by process name
 * `fdisk`: manipulates disk partition table
 * `lswh`: list hardware
@@ -358,9 +359,14 @@ crontab -r
 sudo systemctl status cron
 ```
 
-* To dump SMBIOS (DMI) table contents
+* To dump SMBIOS (DMI) table contents (Find BIOS version)
 ```bash
 sudo dmidecode
+sudo dmidecode -s bios-version
+sudo dmidecode -s bios-release-date
+sudo dmidecode -s system-product-name
+sudo dmidecode -s system-manufacturer
+sudo dmidecode --type bios
 ```
 
 * To display disk partitions
@@ -683,4 +689,12 @@ grep "Failed pass" /var/log/auth.log
 ```bash
 ps -ef
 # those processes within [] are kernel threads
+```
+
+* To list cpu info
+```
+lscpu: display cpu info
+cat /proc/cpuinfo:
+nproc --all: show number of processing units available
+getconf _NPROCESSORS_ONLN: get the number of CPUs/cores
 ```
