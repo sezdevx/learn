@@ -3,6 +3,28 @@
 ## Other Programs
 * [tmux](tmux.md)
 
+## Package manager
+```
+# install a new package
+sudo apt install {package-name}
+# remove a package with config files
+sudo apt remove --purge {package-name}
+# remove a package without config files
+sudo apt remove {package-name}
+# clear apt cache located at /var/cache/apt/archives
+sudo apt clean
+sudo apt-get clean
+# delete only useless packages from /var/cache/apt/archives
+sudo apt autoclean
+sudo apt-get autoclean
+# update the server with the latest
+sudo apt update && sudo apt upgrade
+# list the upgradable packages
+sudo apt list --upgradable
+# to upgrade a specific package
+sudo apt upgrade {package-name}
+```
+
 ## Recipes
 ### [network_map.sh](network_map.sh)
 * To view available hosts in a given network

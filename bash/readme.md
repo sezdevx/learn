@@ -422,11 +422,13 @@ Ctrl + x + Ctrl + e : opens the command line string in an editor so that you can
 Ctrl + e : move cursor to end
 Ctrl + a : move cursor to start
 Ctrl + xx : move to the opposite end of the line
-Ctrl + u : cuts everything before the cursor
-Ctrl + k : cuts everything after the cursor
+Ctrl + u : cuts everything to the beginning of line from current position
+Ctrl + k : cuts everything to the end of line from current position
 Ctrl + y : pastes from the buffer
 Ctrl + l : clears screen
 ```
+
+
 
 
 
