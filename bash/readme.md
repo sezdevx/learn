@@ -19,6 +19,7 @@
 ## [comment_counter.sh](comment_counter.sh)
 * loop reading from stdout
 * counting and incrementing a counter
+* regular expressions, white space matching, beginning of line matching
 
 ## [list_files.sh](list_files.sh)
 * iterating files in a directory
