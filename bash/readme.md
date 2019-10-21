@@ -2,6 +2,10 @@
 * [bash cheatsheet](https://devhints.io/bash)
 
 # Examples
+## [process_file.sh](process_file.sh)
+* process a given file through a command line
+* reading from a file
+* incomplete argument error message {$1:?"Error Message"}
 
 ## [terminal_capabilities.sh](terminal_capabilities.sh)
 * save and restore terminal/screen content
@@ -17,9 +21,10 @@
 * file pattern matching in if expression
 
 ## [comment_counter.sh](comment_counter.sh)
-* loop reading from stdout
+* loop reading from stdout or from a file
 * counting and incrementing a counter
 * regular expressions, white space matching, beginning of line matching
+* regex operator =~
 
 ## [list_files.sh](list_files.sh)
 * iterating files in a directory
@@ -84,7 +89,7 @@
 * getting process id, pid ($$)
 * -z to check if a variable is defined
 * remove any aliasing (e.g. \mv)
-* check the exit status of a previously run program ($?)
+* check the exit status (exit code) of a previously run program ($?)
 
 ## [guess_my_number.sh](guess_my_number.sh)
 * random number generation
@@ -93,7 +98,7 @@
 * argument processing using getopts
 * showing help
 * read with a timeout
-* check exit status $? for timeout of read
+* check exit status (exit code) $? for timeout of read
 * prompt with read
 
 ## [dedup.sh](dedup.sh)
