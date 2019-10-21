@@ -133,7 +133,12 @@
 * building comma separated list
 * replace a string
 
-## [unquote.sh](string_info.sh)
+## [check_bash_files_against_readme.sh](check_bash_files_against_readme.sh)
+* reading from a pipe
+* processing output of ls using while loop
+* checks if any bash file is not documented in readme.md
+
+## [unquote.sh](unquote.sh)
 * -n to test if string is non-zero length
 * conditional last char removal
 * condition first char removal
