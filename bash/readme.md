@@ -16,6 +16,10 @@
 * readability check
 * file pattern matching in if expression
 
+## [comment_counter.sh](comment_counter.sh)
+* loop reading from stdout
+* counting and incrementing a counter
+
 ## [list_files.sh](list_files.sh)
 * iterating files in a directory
 * arrays

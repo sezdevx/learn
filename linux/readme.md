@@ -135,6 +135,9 @@ sudo apt-get install global
 * `nice`: to run a program with modified scheduling priority
 * `renice`: to change the priority of running processes
 * `top`: display linux processes
+* `lscpu`: display cpu info
+* `lshw`: display hardware info
+* `dmesg`: print or control the kernel ring buffer
 
 ## Command Examples
 * top command displays real-time view of a running system
@@ -220,8 +223,16 @@ because you can ruin the kernel with bad values.
 ```bash
 # list all parameters and their values
 sysctl -a
+# list all kernel parameters
+sudo sysctl -a
 # to list the value of a particular parameter
 sysctl vm.swappiness
+```
+
+* To update `/etc/sysctl.conf` changes
+```
+# after editing and saving changes
+sudo sysctl -p
 ```
 
 * To report various stats per process
@@ -693,8 +704,21 @@ ps -ef
 
 * To list cpu info
 ```
-lscpu: display cpu info
+sudo lscpu
+sudo lshw -c cpu
 cat /proc/cpuinfo:
 nproc --all: show number of processing units available
 getconf _NPROCESSORS_ONLN: get the number of CPUs/cores
+```
+
+* To check if Linux is 32 or 64 bits on AMD CPUs that can run
+both versions
+```
+getconf LONG_BIT
+```
+
+* To list Linux kernel parameters
+```
+cat /proc/cmdline
+dmesg | grep "Command line"
 ```
