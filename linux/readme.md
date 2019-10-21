@@ -268,7 +268,7 @@ ss -ul
 
 * To see the status of all services
 ```bash
-service --status-all
+sudo service --status-all
 ```
 
 * To stop mysql service
