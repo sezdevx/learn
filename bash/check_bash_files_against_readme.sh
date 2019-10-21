@@ -7,3 +7,5 @@ ls *.sh | while IFS= read -r line ; do
     fi
 done
 
+# a different method using a one liner
+find *.sh -print0 | xargs -I {} -r0 sh -c "grep {} readme.md > /dev/null || echo NOT FOUND: {}"

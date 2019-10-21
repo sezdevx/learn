@@ -22,3 +22,4 @@ while read; do
     printf "%4d %s\n" $i "$REPLY"
     ((i++))
 done < $file
+
