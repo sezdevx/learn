@@ -83,6 +83,8 @@ sudo apt-get install sqlite3 libsqlite3-dev
 sudo apt-get install mysql-server
 # for gtags
 sudo apt-get install global
+# for bash
+sudo apt install bash-completion
 ```
 
 ## Install Apps
@@ -138,6 +140,8 @@ sudo apt-get install global
 * `lscpu`: display cpu info
 * `lshw`: display hardware info
 * `dmesg`: print or control the kernel ring buffer
+* `host`: DNS lookup utility
+* `dig`: DNS lookup utility
 
 ## Command Examples
 * top command displays real-time view of a running system
@@ -571,6 +575,15 @@ watch -d 'commands'
 pidof commandName
 # to display just one pid
 pidof -s commandName
+# alternative
+ps -C commandName
+# alternative
+pgrep -x commandName
+```
+
+* Check if a process is running
+```bash
+pgrep -x mysqld >/dev/null && echo "Mysql is running" || echo "Mysql is NOT running"
 ```
 
 * Tell tail to die when a process dies
@@ -605,6 +618,7 @@ sudo echo nameserver <IP_ADDRESS> >> /etc/resolv.conf
 * To list the ip addresses of a domain
 ```bash
 host test.com
+dig test.com
 nslookup test.com
 ```
 
@@ -703,7 +717,7 @@ ps -ef
 ```
 
 * To list cpu info
-```
+```bash
 sudo lscpu
 sudo lshw -c cpu
 cat /proc/cpuinfo:
@@ -713,12 +727,17 @@ getconf _NPROCESSORS_ONLN: get the number of CPUs/cores
 
 * To check if Linux is 32 or 64 bits on AMD CPUs that can run
 both versions
-```
+```bash
 getconf LONG_BIT
 ```
 
 * To list Linux kernel parameters
-```
+```bash
 cat /proc/cmdline
 dmesg | grep "Command line"
+```
+
+* Bash completion
+```bash
+cat /etc/profile.d/bash_completion.sh
 ```

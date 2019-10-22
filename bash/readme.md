@@ -137,6 +137,7 @@
 * reading from a pipe
 * processing output of ls using while loop
 * checks if any bash file is not documented in readme.md
+* xargs, passing multiple commands to xargs, using the same argument twice
 
 ## [unquote.sh](unquote.sh)
 * -n to test if string is non-zero length
@@ -385,7 +386,7 @@ export -f funcName
 ```
 
 * To disable globbing (file name generation using metacharacters)
-```
+```bash
 set -f
 ls *
 ls: cannot access '*': No such file or directory
@@ -395,7 +396,7 @@ ls *
 ```
 
 * To print input lines as they are read
-```
+```bash
 set -v
 ls
 ls
@@ -414,7 +415,7 @@ a/ b/
 ```
 
 * Individual user config files
-```
+```bash
 ~/.bash_profile
 ~/.bash_login
 ~/.profile
@@ -443,7 +444,12 @@ Ctrl + y : pastes from the buffer
 Ctrl + l : clears screen
 ```
 
-
+* Writing a simple bash completion code
+```bash
+# make sure bash-completion is installed
+complete -W 'google.com apple.com microsoft.com facebook.com' host
+host [TAB]
+```
 
 
 
