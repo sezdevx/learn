@@ -2,6 +2,10 @@
 * [bash cheatsheet](https://devhints.io/bash)
 
 # Examples
+## [timestamp_file_names.sh](timestamp_file_names.sh)
+* generates file name with a timestamp
+* use of date to generate timestamp
+
 ## [process_file.sh](process_file.sh)
 * process a given file through a command line
 * reading from a file
