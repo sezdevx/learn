@@ -142,6 +142,7 @@ sudo apt install bash-completion
 * `dmesg`: print or control the kernel ring buffer
 * `host`: DNS lookup utility
 * `dig`: DNS lookup utility
+* `logger`: enters messages into the system log
 
 ## Command Examples
 * top command displays real-time view of a running system
@@ -740,4 +741,69 @@ dmesg | grep "Command line"
 * Bash completion
 ```bash
 cat /etc/profile.d/bash_completion.sh
+```
+
+* Search packages
+```bash
+apt-cache search dns dig
+```
+
+* Upgrade a specific package that is already installed
+```bash
+sudo apt-get --only-upgrade install {package-name}
+```
+
+* Setup SSH public key authentication
+```bash
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+
+# generate keys
+# ssh-keygen or
+ssh-keygen -t rsa 4096 -C "Key for remote servers"
+# ed25519 is better
+ssh-keygen -t ed25519 -C "Key for remote servers"
+
+# to install
+# for rsa
+ssh-copy-id -i $HOME/.ssh/id_rsa.pub user@remote-server
+# for ed25519 KEY
+ssh-copy-id -i $HOME/.ssh/id_ed25519.pub user@remote-server
+
+# to test the setup
+ssh user@remote-server
+
+# to disable the passphrase/password
+eval $(ssh-agent)
+ssh-add
+ssh user@remote-server
+```
+
+* To switch to root
+```bash
+sudo -i
+```
+
+* To backup files
+```bash
+rsync -avr ~/.ssh user@remote-server:/path/to/encrypted/partition
+```
+
+* To change the host name
+```bash
+sudo hostnamectl set-hostname NEW_HOST_NAME
+sudo vi /etc/hosts
+sudo reboot
+```
+
+* To find your public or private IP
+```bash
+ip a
+ip a s eth0
+```
+
+* To log a message to system log
+```bash
+logger "This is my message"
+tail -f /var/log/syslog
 ```
