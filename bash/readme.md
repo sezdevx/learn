@@ -76,6 +76,10 @@
 * -z to check if a variable is defined or has zero length
 * -n to check if a variable has non-zero length
 
+## [file_info.sh](file_info.sh)
+* File test operators (readable, executable, writable etc...)
+* File size
+
 ## [file_access.sh](file_access.sh)
 * find root path of the running script
 * return a value from a function
@@ -159,7 +163,7 @@
 * you can't do float arithmetic in bash, you can do division though
 
 ## [builtin_data.sh](builtin_data.sh)
-* read from here documents
+* read from here documents (here strings)
 * a mini ascii art
 * processing data from here documents
 * adding to an array

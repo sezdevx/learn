@@ -143,6 +143,9 @@ sudo apt install bash-completion
 * `host`: DNS lookup utility
 * `dig`: DNS lookup utility
 * `logger`: enters messages into the system log
+* `nohup`: run a command immune to hangups, with output to a non-tty
+* `lsb_release`: print distribution specific information
+* `do-release-upgrade`: upgrade the os to the latest release
 
 ## Command Examples
 * top command displays real-time view of a running system
@@ -806,4 +809,21 @@ ip a s eth0
 ```bash
 logger "This is my message"
 tail -f /var/log/syslog
+```
+
+* To print distribution specific information
+```bash
+$ lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 18.04.3 LTS
+Release:        18.04
+Codename:       bionic
+```
+
+* To upgrade ubuntu to the latest release
+```bash
+sudo do-release-upgrade
+# in case do-release-upgrade not found
+sudo apt install ubuntu-release-upgrader-core
 ```
