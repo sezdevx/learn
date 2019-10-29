@@ -82,6 +82,7 @@
 
 ## [check_latest_enwiki_dump.sh](check_latest_enwiki_dump.sh)
 * Download from internet
+* Silent curl command
 * Check the success of a program and use it as a condition
 * Ignore rm errors
 * Silent grep command
