@@ -80,6 +80,12 @@
 * File test operators (readable, executable, writable etc...)
 * File size
 
+## [check_latest_enwiki_dump.sh](check_latest_enwiki_dump.sh)
+* Download from internet
+* Check the success of a program and use it as a condition
+* Ignore rm errors
+* Silent grep command
+
 ## [file_access.sh](file_access.sh)
 * find root path of the running script
 * return a value from a function
