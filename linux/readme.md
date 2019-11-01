@@ -963,10 +963,30 @@ target
 systemctl list-units
 ```
 
-* Location of systemd unit config files
+* Location of systemd unit config files. The config files specify what other services must be started,
+when this service can be started etc...
 ```bash
 cd /lib/systemd/system
 cd /etc/systemd/system
 # list config file names of service unit type
 systemctl list-unit-files --type=service
+# enabled: the unit is enabled currently
+# disabled: the unit is disabled currently
+# static: statically enabled, can not be disabled even by root  
 ```
+
+* The basic service unit config file has the following options
+```
+Description: Free form description
+After: Which units should be started before this service
+Environment File: The service's config file
+ExecStart: Command used to start this service
+ExecReload: Command used to reload this service
+WnatedBy: The target unit this service belongs to 
+```
+
+* To list units that a target unit will activate
+```bash
+systemctl show --property "Wants" multi-user.target
+```
+
