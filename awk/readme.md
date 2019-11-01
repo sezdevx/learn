@@ -8,6 +8,7 @@ awk -f number_of_lines.awk ../data/population.csv
 ## [number_of_lines.awk](number_of_lines.awk)
 * Count lines of a file
 * Use of NR at the end
+* Print file name
 
 ## [line_no.awk](line_no.awk)
 * Print line number for each line of the file

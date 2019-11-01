@@ -3,6 +3,7 @@ BEGIN {
 }
 { i++ }
 END {
+    print FILENAME
     print i
     # print NR
 }
