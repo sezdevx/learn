@@ -985,8 +985,140 @@ ExecReload: Command used to reload this service
 WnatedBy: The target unit this service belongs to 
 ```
 
-* To list units that a target unit will activate
-```bash
-systemctl show --property "Wants" multi-user.target
+* The basic target unit config file has the following options
+```
+Description: Free form description
+Requires: If this target unit is activated, so is the requires target unit
+Conflicts: Avoids conflicts in services, starting this target unit stops the listed targets and services
+After: Which units should be activated before this unit
+AllowIsolate: If set to yes, then this unit is activated along with its dependencies and all others are deactivated
+ExecStart: Commands that starts the service
+ExecReload: Command used to reload this service
+Alias: systemd creates a symbolic link from the target unit names listed to this unit
 ```
 
+* Systemv backward compatibility unit config files
+```
+runlevel0.target
+runlevel1.target
+runlevel2.target (sybollically linked to multi-user.target)
+runlevel3.target (sybollically linked to multi-user.target)
+runlevel4.target (sybollically linked to multi-user.target)
+runlevel5.target 
+```
+
+* Check out what the default.target links to 
+```bash
+ls -l /lib/systemd/system/default.target
+```
+
+* To list units that a target unit will activate
+```bash
+# can't see all the output
+systemctl show --property "Wants" multi-user.target
+# better output
+systemctl show --property "Wants" multi-user.target | fmt -10 | sed 's/Wants=//g' | sort
+# with requires (which is more stringent than wants)
+systemctl show --property "Requires" multi-user.target | fmt -10 | sed 's/Wants=//g' | sort
+```
+
+* To see how getty.target is linked to multi-user.target
+```bash
+systemctl show --property "WantedBy" getty.target
+```
+
+* For SysVinit systems, check the list of services and their runlevels
+```bash
+chkconfig --list
+```
+
+* For SysVinit systems, check all running services
+```bash
+service --status-all | grep running... | sort
+```
+
+* To see an individual service's status
+```bash
+service cups status
+systemctl status cups.service
+```
+
+* To see the status of all services
+```bash
+service --status-all
+```
+
+* To start, stop services with systemd
+```bash
+service cups stop
+systemctl status cups.service
+service cups start
+systemctl start cups.service
+service cups restart
+systemctl restart cups.service
+# the following is a conditional restart, restarts a service if it is currently running
+systemctl condrestart cups.service
+service cups reload # only config files are reloaded
+systemctl reload cups.service
+```
+
+* To start, stop service with Upstart
+```bash
+initctl stop cups
+initctl start cups
+initctl restart cups
+initctl reload cups
+```
+
+* To make a service persistent in SysVInit
+```bash
+chkconfig --level 3 cups on
+chkconfig --list cups
+ls /etc/rc.d/rc3.d/S*cups
+# to make it persistent on more than one level
+chkconfig --level 2345 cups on
+```
+
+* To make a service persistent in upstart
+```bash
+# edit /etc/init/service.conf file
+# search for start line
+# e.g. start on filesystem or runlevel [2345]
+```
+
+* To make a service persistent in systemd
+```bash
+systemctl enable cups.service
+systemctl status cups.service
+# to disable it
+systemctl disable cups.service
+systemctl status cups.service
+```
+
+* To prevent anyone from ever running a service in systemd
+```bash
+systemctl mask NetworkManager.service
+# to enable running it again
+systemctl unmask NetworkManager.service
+```
+
+* Configuring SysVinit default runlevel
+```bash
+# edit /etc/inittab
+# current default runlevel is runlevel 5
+id:5:initdefault: 
+```
+
+* Configuring Upstart default runlevel
+```bash
+# edit /etc/init/rc-sysinit.conf
+# find DEFAULT_RUNLEVEL= and edit it
+```
+
+* Configuring systemd default runlevel
+```bash
+# link /lib/systemd/system/default.target to the desired runlevel's file
+# but main options are multi-user.target which is same as runlevel2.target, runlevel3.target, and runlevel4.target
+# other option is graphical.target which is same as runlevel5.target
+ln -sf /lib/systemd/system/runlevel3.target /etc/systemd/system/default.target
+```
