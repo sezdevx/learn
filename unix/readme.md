@@ -1229,6 +1229,8 @@ curl http://test.com --cokie "user=userName;passwd=pass"
 curl http://www.test.com --cookie-jar cooki.file.path
 # to set the user agent
 curl http://www.test.com --user-agent "Mozilla/5.0"
+curl -A "Mozilla/5.0" http://www.test.com
+curl -H "User-Agent: Mozilla/5.0" http://www.test.com
 # to set any header
 curl -H "Host: www.test.com" -H "Accept-language: en" http://www.test.com
 # to limit the bandwidth

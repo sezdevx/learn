@@ -137,6 +137,7 @@ sudo apt install bash-completion
 * `nice`: to run a program with modified scheduling priority
 * `renice`: to change the priority of running processes
 * `top`: display linux processes
+* `htop`: ncurses based top
 * `lscpu`: display cpu info
 * `lshw`: display hardware info
 * `dmesg`: print or control the kernel ring buffer
@@ -146,6 +147,9 @@ sudo apt install bash-completion
 * `nohup`: run a command immune to hangups, with output to a non-tty
 * `lsb_release`: print distribution specific information
 * `do-release-upgrade`: upgrade the os to the latest release
+* `ufw`: ubuntu firewall (for managing netfilter firewall)
+* `strings`: print strings of printable characters in a given file
+* `runlevel`: print previous and current sysv runlevel
 
 ## Command Examples
 * top command displays real-time view of a running system
@@ -386,6 +390,81 @@ sudo dmidecode -s bios-release-date
 sudo dmidecode -s system-product-name
 sudo dmidecode -s system-manufacturer
 sudo dmidecode --type bios
+# show all info about system
+sudo dmidecode -t SYSTEM
+# all info about bios
+sudo dmidecode -t BIOS
+# all info about baseboard
+sudo dmidecode -t BASEBOARD
+sudo dmidecode -t Processor
+
+# full list of strings
+bios-vendor
+bios-version
+bios-release-date
+system-manufacturer
+system-product-name
+system-version
+system-serial-number
+system-uuid
+baseboard-manufacturer
+baseboard-product-name
+baseboard-version
+baseboard-serial-number
+baseboard-asset-tag
+chassis-manufacturer
+chassis-type
+chassis-version
+chassis-asset-tag
+processor-family
+processor-manufacturer
+processor-version
+processor-frequency
+
+# list of DMI types
+0 BIOS
+1 System
+2 Baseboard
+3 Chassis
+4 Processor
+5 Memory Controller
+6 Memory Module
+7 Cache
+8 Port Connector
+9 System Slots
+10 On Board Devices
+11 OEM Strings
+12 System Configuration Options
+13 BIOS Language
+14 Group Associations
+15 System Event Log
+16 Physical Memory Array
+17 Memory Device
+18 32-bit Memory Error
+19 Memory Array Mapped Address
+20 Memory Device Mapped Address
+21 Built-in Pointing Device
+22 Portable Battery
+23 System Reset
+24 Hardware Security
+25 System Power Controls
+26 Voltage Probe
+27 Cooling Device
+28 Temperature Probe
+29 Electrical Current Probe
+30 Out-of-band Remote Access
+31 Boot Integrity Services
+32 System Boot
+33 64-bit Memory Error
+34 Management Device
+35 Management Device Component
+36 Management Device Threshold Data
+37 Memory Channel
+38 IPMI Device
+39 Power Supply
+40 Additional Information
+41 Onboard Device Extended Information
+42 Management Controller Host Interface
 ```
 
 * To display disk partitions
@@ -826,4 +905,68 @@ Codename:       bionic
 sudo do-release-upgrade
 # in case do-release-upgrade not found
 sudo apt install ubuntu-release-upgrader-core
+```
+
+* htop options
+```
+htop -C: no color
+htop --pid=pid1,pid2,pid3: info about specific processes given by their id
+htop -u username: processes of a given user
+```
+
+* To check if you are running systemd or upstart init
+```bash
+sudo strings /sbin/init | grep -i systemd
+sudo strings /sbin/init | grep -i upstart
+```
+
+* To check the classic init daemon config file
+```bash
+# most latest linux distros do not use this anymore
+cat /etc/inittab
+```
+
+* To find the current run level
+```bash
+runlevel
+
+# to immediately go to a particular runlevel
+init 0
+init 3
+```
+
+* Where are the scripts that start and stop services for a given run level
+```bash
+cd /etc/rc.d/rc[0|1|2|3|4|...].d
+# any file that starts with S is for starting a service
+# any file that starts with K is for killing a service
+# any number between K, S and the service name controls the order of starting
+# processes
+# all the files under rc#.d directories are symbolic links to script files
+# located under /etc/rc.d/init.d directory which starts and kills services
+```
+
+* List of systemd unit types
+```
+automount
+device
+mount
+path
+service
+snapshot
+socket
+target
+```
+
+* To list systemd units
+```bash
+systemctl list-units
+```
+
+* Location of systemd unit config files
+```bash
+cd /lib/systemd/system
+cd /etc/systemd/system
+# list config file names of service unit type
+systemctl list-unit-files --type=service
 ```
