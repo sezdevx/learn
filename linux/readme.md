@@ -1128,3 +1128,31 @@ ln -sf /lib/systemd/system/runlevel3.target /etc/systemd/system/default.target
 dpkg-query -L {package-name}
 ```
 
+* To get the list of users on a machine
+```bash
+cut -d: -f1 /etc/passwd
+```
+
+* To get a user's info from passwd database
+```bash
+getent passwd userName
+```
+
+* To kill all processes by name
+```bash
+killall -9 emacs
+```
+
+* To exclude files while copying files remotely
+```bash
+rsync -av -e ssh --exclude='*.sh' /source/path/ user@remoteHost:/dest/path/
+# -a : recursive into directories
+# -v : verbose output
+# -e ssh : use ssh
+# --exclude : exclude the given files
+```
+
+* To exclude files from scp
+```bash
+scp !(*.sh) userName@remoteHost:/dest/path
+```

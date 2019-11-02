@@ -1282,7 +1282,3 @@ chmod ugo+rwx file
 chmod 777 file
 ```
 
-* To get the list of users on a machine
-```bash
-cut -d: -f1 /etc/passwd
-```
