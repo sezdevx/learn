@@ -1127,3 +1127,4 @@ ln -sf /lib/systemd/system/runlevel3.target /etc/systemd/system/default.target
 ```bash
 dpkg-query -L {package-name}
 ```
+
