@@ -6,7 +6,7 @@
 vim-gui-common and vim-runtime packages.  
 ```bash
 sudo apt install vim-gui-common
-# also might want to install vim-runtime too
+# also might want to install vim-runtime too if not already installed
 ```
 
 # Pro Vim
