@@ -1122,3 +1122,8 @@ id:5:initdefault:
 # other option is graphical.target which is same as runlevel5.target
 ln -sf /lib/systemd/system/runlevel3.target /etc/systemd/system/default.target
 ```
+
+* Get list of files installed for a package on ubuntu
+```bash
+dpkg-query -L {package-name}
+```
