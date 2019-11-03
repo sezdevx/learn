@@ -1095,6 +1095,9 @@ find . -type f -perm 644 -print
 find . -type f -user root -print
 # delete all found files
 find . -type f -name "*.mwd" -delete
+# tars given files
+find . -name "*.sh" -exec tar -rvf out.tar {} +
+find . -name "*.sh" -print0 | tar -cvf out.tar --null -T -
 # executing a command on each found file
 find . -type f -user root -exec chown user1 {} \;
 # if the command accepts multiple arguments use + to speed up
