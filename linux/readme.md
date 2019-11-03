@@ -1156,3 +1156,12 @@ rsync -av -e ssh --exclude='*.sh' /source/path/ user@remoteHost:/dest/path/
 ```bash
 scp !(*.sh) userName@remoteHost:/dest/path
 ```
+
+* To execute bash aliases on ssh
+```bash
+ssh -t user@host /bin/bash -ic 'alias_name'
+# -t: force pseudo-terminal allocation, can be used to execute arbitrary
+# screen based programs on a remote host
+# -i: make bash interactive
+# -c: commands are read from the first non-option argument command string
+```
