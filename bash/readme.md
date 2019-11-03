@@ -466,5 +466,13 @@ complete -W 'google.com apple.com microsoft.com facebook.com' host
 host [TAB]
 ```
 
-
+* To display the type of a command
+```bash
+type command
+# examples
+$ type type
+type is a shell builtin
+$ type which
+which is /usr/bin/which
+```
 
