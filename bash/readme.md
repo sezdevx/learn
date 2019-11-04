@@ -474,5 +474,12 @@ $ type type
 type is a shell builtin
 $ type which
 which is /usr/bin/which
+$ type cd
+cd is a shell builtin
 ```
 
+* To get help for a shell builtin
+```bash
+help type
+help cd
+```
