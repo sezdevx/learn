@@ -39,6 +39,9 @@ sudo apt upgrade {package-name}
 ### [addr_books.sh](addr_books.sh)
 * A sample sqlite3 addressbook implementation
 
+### [stats.sh](stats.sh)
+
+
 ## Important Files
 * `/etc/resolv.conf`
 Where DNS servers are listed
