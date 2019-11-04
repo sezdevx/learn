@@ -40,7 +40,7 @@ sudo apt upgrade {package-name}
 * A sample sqlite3 addressbook implementation
 
 ### [stats.sh](stats.sh)
-
+* A simple script that illustrates the use of stat command
 
 ## Important Files
 * `/etc/resolv.conf`
