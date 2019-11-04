@@ -483,3 +483,15 @@ cd is a shell builtin
 help type
 help cd
 ```
+
+* Escape $ sign in double quotes
+```bash
+echo "Hello \$world"
+# or
+echo 'Hello $world'
+```
+
+* To list of bash builtins
+```bash
+help -d
+```
