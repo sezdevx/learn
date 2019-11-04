@@ -126,7 +126,8 @@ sudo apt install bash-completion
 * `dmidecode`: DMI table decoder
 * `crontab`: to view/modify crontab jobs
 * `lsb_release`: to print distribution-specific information
-* `useradd`: to add a new user
+* `useradd`: to add a new user, low level binary
+* `adduser`: perl script, higher level adding user which uses useradd
 * `deluser`: to remove a user
 * `id`: print real and effective user and group IDs
 * `chsh`: to change user shell
@@ -160,6 +161,7 @@ sudo apt install bash-completion
 * `ufw`: ubuntu firewall (for managing netfilter firewall)
 * `strings`: print strings of printable characters in a given file
 * `runlevel`: print previous and current sysv runlevel
+* `select-editor`: selects a default editor per user, stores the selection under `~/.selected_editor`.
 
 ## Command Examples
 * top command displays real-time view of a running system
@@ -354,6 +356,7 @@ usermod -U userName
 * To add a new user
 ```bash
 useradd userName -p password -m
+useradd userName -s /path/to/shell -d /home/dirName -m -G secondaryGroup -p password
 # -m to create the home directory too
 ```
 
@@ -400,6 +403,11 @@ sudo lswh
 * To view crontab for the current user
 ```bash
 crontab -l
+```
+
+* To edit crontab file
+```bash
+crontab -e
 ```
 
 * To remove crontab
@@ -1196,3 +1204,18 @@ ssh -t user@host /bin/bash -ic 'alias_name'
 # -c: commands are read from the first non-option argument command string
 ```
 
+* To change crontab's default editor
+```bash
+export EDITOR="emacs -nw"
+# or
+select-editor
+
+Select an editor.  To change later, run 'select-editor'.
+  1. /bin/nano        <---- easiest
+  2. /usr/bin/vim.basic
+  3. /usr/bin/vim.tiny
+  4. /usr/bin/emacs25
+  5. /bin/ed
+
+Choose 1-5 [1]:
+```
