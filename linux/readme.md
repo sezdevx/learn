@@ -33,6 +33,12 @@ sudo apt upgrade {package-name}
 ### [ps_cpu_usage.sh](ps_cpu_usage.sh)
 * To observe process cpu usage over a configured time
 
+### [failed_users.sh](failed_users.sh)
+* To find failed login attempts
+
+### [addr_books.sh](addr_books.sh)
+* A sample sqlite3 addressbook implementation
+
 ## Important Files
 * `/etc/resolv.conf`
 Where DNS servers are listed
@@ -119,6 +125,7 @@ sudo apt install bash-completion
 * `lsb_release`: to print distribution-specific information
 * `useradd`: to add a new user
 * `deluser`: to remove a user
+* `id`: print real and effective user and group IDs
 * `chsh`: to change user shell
 * `usermod`: to lock/unlock a user
 * `chage`: modify password expiration
@@ -355,6 +362,26 @@ csh userName -s /bin/csh
 * To delete a user
 ```bash
 deluser userName --remove-all-files
+#sudo deluser --remove-home userName
+# verify it with id userName
+# edit /etc/deluser.conf file for default options for deluser command
+```
+
+* To delete a user with the low level utility command userdel
+```bash
+sudo userdel -r userName
+# use deluser instead
+```
+
+* To see the log of deleted users
+```bash
+sudo grep 'userdel' /var/log/auth.log
+```
+
+* To temporarily disable user login
+```bash
+sudo usermod -L -e 1 userName
+sudo usermod -L -e 2020-01-01 userName
 ```
 
 * To display distribution specific info
@@ -1165,3 +1192,4 @@ ssh -t user@host /bin/bash -ic 'alias_name'
 # -i: make bash interactive
 # -c: commands are read from the first non-option argument command string
 ```
+
