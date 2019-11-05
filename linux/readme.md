@@ -1219,3 +1219,57 @@ Select an editor.  To change later, run 'select-editor'.
 
 Choose 1-5 [1]:
 ```
+
+* Passwordless login to remote aws machine
+```bash
+# local computer
+# Create id_ed25519 or id_rsa keys
+ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "joe@example.com"
+# -o: use openssh format, rather than pem format
+# -a: number of key derivation function (KDF) rounds
+# -t: type of key (ed25519)
+# -f: file name of the generated key file
+# -C: comment
+# run ssh-agent
+eval "$(ssh-agent -s)"
+# add key
+ssh-add ~/.ssh/id_ed25519
+# cat ~/.ssh/id_ed25519.pub
+# ssh-ed25519 ...... joe@example.com
+
+# remote computer
+mkdir ~/.ssh
+chmod 0700 ~/.ssh
+echo 'ssh-ed25519 ...... joe@example.com' > ~/.ssh/authorized_keys
+
+# now locally you can login without password
+ssh userName@remoteHost
+```
+
+* To run multiple commands with sudo
+```bash
+sudo sh -c 'date; ls'
+sudo -- sh -c 'date; ls'
+sudo -- sh -c 'date && ls'
+sudo -- bash -c 'date && ls'
+sudo -i -- sh -c 'date; ls; w'
+```
+
+* Find the free memory
+```bash
+# in bytes
+free -b
+# in mega bytes
+free -m
+# in giga bytes
+free -g
+# through proc
+cat /proc/meminfo
+# through vmstat
+vmstat 2 5
+vmstat -a
+# through htop
+htop
+```
+
+

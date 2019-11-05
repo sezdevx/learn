@@ -1242,6 +1242,8 @@ curl http://www.test.com --limit-rate 20k
 curl http://www.test.com --max-filesize 1048576
 # to print response headers excluding data
 curl -I http://www.test.com
+# to resume broken download
+curl -L -O -C - http://site/big_file.iso
 ```
 
 * To specify a different non-default port for ssh
