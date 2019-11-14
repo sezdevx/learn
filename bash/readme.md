@@ -495,3 +495,26 @@ echo 'Hello $world'
 ```bash
 help -d
 ```
+
+* To bypass an alias
+```bash
+\ls
+# to remove all aliases
+\unalias -a
+```
+
+* To list all functions defined
+```bash
+declare -F
+```
+
+* To view the source code of a function
+```bash
+type -a getMd5
+```
+
+* To view where a function is defined
+```bash
+shopt -s extdebug
+declare -F getMd5
+```

@@ -1287,3 +1287,7 @@ chmod ugo+rwx file
 chmod 777 file
 ```
 
+* To create a bootable ubuntu usb flash
+```bash
+sudo dd if=/isos/ubuntu.iso of=/dev/sdb bs=1M status=progress
+```

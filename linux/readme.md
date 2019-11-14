@@ -375,8 +375,12 @@ deluser userName --remove-all-files
 
 * To delete a user with the low level utility command userdel
 ```bash
+# remove home directory
 sudo userdel -r userName
-# use deluser instead
+# forces the removal of the account, even if the user is logged in
+sudo userdel -f userName
+# remove any SELinux user mapping for the user's login
+sudo userdel -Z userName
 ```
 
 * To see the log of deleted users
@@ -1272,4 +1276,12 @@ vmstat -a
 htop
 ```
 
-
+* io performance and stat tools
+```bash
+iotop
+sar
+iostat
+ioping
+dstat
+atop
+```
