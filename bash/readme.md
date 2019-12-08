@@ -518,3 +518,4 @@ type -a getMd5
 shopt -s extdebug
 declare -F getMd5
 ```
+
