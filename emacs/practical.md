@@ -308,6 +308,12 @@ Ctrl-x e
 * To name the last recorded macro
 ```
 Meta-x name-last-kbd-macro
+Ctrl-x Ctrl-k n
+```
+
+* To bind the last recorded macro to a key
+```
+Ctrl-x Ctrl-k b
 ```
 
 * To insert lisp code for a named macro
