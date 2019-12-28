@@ -3,7 +3,7 @@
 # Problems
 * If you are getting "Sorry, the command is not available in this version…” try installing
 `vim-gui-common` package. If your vim's `:version` shows `Small version without GUI.` then install
-vim-gui-common and vim-runtime packages.  
+vim-gui-common and vim-runtime packages.
 ```bash
 sudo apt install vim-gui-common
 # also might want to install vim-runtime too if not already installed
