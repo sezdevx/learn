@@ -251,6 +251,21 @@ Type / and then up and down arrows
 :h index
 ```
 
+* To get help on Ctrl-h in insert mode
+```
+:help i_CTRL-H
+```
+
+* To get help on command line options
+```
+:help -t
+```
+
+* To get help on ex command
+```
+:help :quit
+```
+
 ## Buffers
 * To kill the current buffer
 ```
@@ -288,11 +303,13 @@ Ctrl-6
 * To go to the last buffer
 ```
 :bl
+:blast
 ```
 
 * To go to the first buffer
 ```
 :bf
+:bfirst
 ```
 
 ## Cut, Copy, Paste, Undo, Redo
@@ -361,6 +378,7 @@ cw
 * To delete a line till the end and go into insert mode
 ```
 c$
+C
 ```
 
 * To change a word before the cursor
@@ -417,6 +435,11 @@ Ctrl-D
 * To write changes and exit
 ```
 ZZ
+```
+
+* To delete a single character
+```
+x
 ```
 
 ## Shell
@@ -481,6 +504,11 @@ ZZ
 * To read a file and insert it into the current buffer
 ```
 :read /path/to/file
+```
+
+* To open a file in read-only mode
+```
+:view /path/to/file
 ```
 
 ## Macros
@@ -614,6 +642,16 @@ N Ctrl-w |
 :only
 ```
 
+* Increase window size by 1
+```
+Ctrl-w +
+```
+
+* Decrease window size by 1
+```
+Ctrl-w -
+```
+
 # Miscellaneous
 
 * To insert the full path of the file into the buffer
@@ -649,6 +687,17 @@ Ctrl-c
 * To inspect the value of a variable
 ```
 set path?
+```
+
+## Programming
+* Search for a definition of a local variable
+```
+gd
+```
+
+* Search for a definition of a global variable
+```
+gD
 ```
 
 
