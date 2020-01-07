@@ -67,6 +67,12 @@ v/searchTerm
 Ctrl-r a
 ```
 
+* To process a set of specific lines
+```
+:1,5y  "copy lines from 1 to 5
+:%y    "copy the whole buffer
+:%d    "delete the whole buffer
+```
 
 ## Moving around
 * To go to the beginning of file
@@ -172,6 +178,11 @@ $
 0
 ```
 
+* To go to the first non-blank character in line
+```
+^
+```
+
 * To jump to the matching paranthesis
 ```
 %
@@ -220,6 +231,11 @@ N
 Type / and then up and down arrows
 ```
 
+* To replace string globally and ask for confirmation before each replacement
+```
+:%s/target/replacement/gc
+```
+
 * To replace string globally
 ```
 :%s/target/replacement/g
@@ -251,9 +267,19 @@ Type / and then up and down arrows
 :h index
 ```
 
+* To display help on u command when in visual mode
+```
+:help v_u
+```
+
 * To get help on Ctrl-h in insert mode
 ```
 :help i_CTRL-H
+```
+
+* To get help on Ctrl-h in mini buffer
+```
+:help c_CTRL-F
 ```
 
 * To get help on command line options
@@ -266,10 +292,16 @@ Type / and then up and down arrows
 :help :quit
 ```
 
+* To get help on command line (mini buffer)
+```
+:help cmdline
+```
+
 ## Buffers
 * To kill the current buffer
 ```
 :bdelete
+:bd
 ```
 
 * Switch to the next buffer
@@ -575,6 +607,37 @@ d`a
 :map
 ```
 
+* Do a non-recursive mapping
+```
+nmap x dd
+" non-recursive mapping, \ is mapped to default value of x, instead of dd
+" normal mode
+nnoremap \ x
+```
+
+* To do a mapping for special keys
+```
+nnoremap <space>m x
+nnoremap <c-k> dd
+nnoremap <c-k> A<cr>hello
+```
+
+* To assign a leader key to be used in mappings
+```
+let mapleader=','
+nnoremap <leader>d dd
+```
+
+* To disable a key
+```
+inoremap <left> <nop>
+```
+
+* To define a key mapping local to the buffer
+```
+nnoremap <buffer> <leader>x dd
+```
+
 ## Windows
 * To split a window horizontally
 ```
@@ -586,11 +649,26 @@ Ctrl-w s
 Ctrl-w v
 ```
 
+* To create a new file in a horizontally split window
+```
+:sp filename
+```
+
+* To create a new file in a vertically split window
+```
+:vsp filename
+```
+
 * To cycle between windows
 ```
 Ctrl-w w
 Ctrl-w Ctrl-w
-``
+```
+
+* To close current window
+```
+Ctrl-w q
+```
 
 * To focus on the window on the left
 ```
@@ -654,6 +732,11 @@ Ctrl-w -
 
 # Miscellaneous
 
+* To repeat a command
+```
+.
+```
+
 * To insert the full path of the file into the buffer
 ```
 :read !echo %:p
@@ -674,6 +757,11 @@ Ctrl-w -
 Ctrl-V TAB
 ```
 
+* To insert any character with its number
+```
+Ctrl-v065
+```
+
 * To cancel a command
 ```
 Ctrl-c
@@ -682,6 +770,12 @@ Ctrl-c
 * To explore a directory
 ```
 :Explore path/to/dir
+```
+
+* In insert mode to switch to normal mode and execute a single mode and return back to insert mode
+```
+Ctrl-o
+e.g. Ctrl-o0 to go the beginning of line
 ```
 
 * To inspect the value of a variable
@@ -698,6 +792,232 @@ gd
 * Search for a definition of a global variable
 ```
 gD
+```
+
+* To create an abbreviation in insert mode
+```
+iabbrev adn and
+iabbrev tehn then
+iabbrev iff if ()<cr><up><left>
+iabbrev @@ my_username@company.com
+```
+
+* To create buffer-local abbreviations
+```
+iabbrev <buffer> --- &mdash
+```
+
+* To create abbreviations specific to a language
+```
+autocmd FileType python :iabbrev <buffer> iff if:<left>
+```
+
+## Command Line Mini Buffer
+* To delete the word before the cursor
+```
+Ctrl-w
+```
+
+* To delete everything before the cursor
+```
+Ctrl-u
+```
+
+## Insert mode
+* To insert a tab character literally
+```
+Ctrl-v TAB
+```
+
+* To indent 
+```
+Ctrl-t
+```
+
+* To unindent
+```
+Ctrl-d
+```
+
+* To insert a new line
+```
+Ctrl-j
+```
+
+* To insert a register content
+```
+Ctrl-r
+```
+
+## Vimscript
+* To write a file to disk as soon as you edit one
+```
+autocmd BufNewFile * :write
+```
+
+* To write all text files to disk as soon as you edit one
+```
+autocmd BufNewFile *.txt :write
+```
+
+* To auto indent html files right before saving them to disk
+```
+autocmd BufWritePre *.html :normal gg=G
+```
+
+* To prevent duplicate autocmds when reloading scripts, group them
+```
+augroup pythongroup
+  autocmd!
+  autocmd FileType html nnoremap <buffer> <localleader>f Vatzf
+augroup
+```
+
+* Movement mappings
+```
+" dp will delete within parantheses
+onnoremap p i(
+```
+
+* Normal mode command
+```
+:normal gg
+```
+
+* Execute a string as vim script
+```
+:execute "write"
+```
+
+* Variables
+```
+let foo = "bar"
+echo foo
+set textwidth=80
+echo &textwidth
+let &textwidth=100
+let &textwidth = &textwidth + 10
+```
+
+* Local options
+```
+let &l:number = 1
+```
+
+* Registers as variables
+```
+let @a = "hello"
+echo @a
+```
+
+* Buffer local variables
+```
+let b:hello = "world"
+```
+
+* To permanently show a message im messages
+```
+:echom "Permanent message"
+:messages
+```
+
+* If conditions
+```
+if 1
+  echom "One"
+endif
+
+if 0
+  echom "Zero"
+elseif 1
+  echom "One"
+endif
+
+if 0 > 1
+  echom "Impossible"
+endif
+
+setignorecase
+if "foo" == "Foo"
+  echom "yes, vim ignores case"
+endif
+
+" case-insensitive comparison
+if "foo" ==? "FOO"
+  echom "This is going to be displayed"
+endif
+
+" case sensitive comparison
+if "foo" ==# "FOO"
+  echom "This is NOT going to be displayed"
+endif
+```
+
+* Functions
+```
+function Hello()
+  return "Hello World"
+endfunction
+
+echom Hello()
+call Hello()
+
+function HelloW(who)
+  return "Hello " . who
+endfunction
+
+echom HelloW("World")
+
+function VarArgExample(...)
+  echom a:0
+  echom a:1
+  echom a:000
+endfunction
+
+call VarArgExample("a", "b")
+```
+
+* Arithmetic
+```
+echo 2 * 2.0
+echo 3 / 2
+echo 3 / 2.0
+```
+
+* String functions
+```
+echo strlen("foo")
+echo len("foo")
+echo split("one two three")
+echo split("one,two,three", ",")
+echo join(["one", "two", "three"], ";")
+echo tolower("FOO")
+echo toupper("foo")
+```
+
+* To force normal mode to execute a command even though the command is remapped to something else
+```
+" even if G is remapped to something else, the default will be executed
+normal! G
+```
+
+* To enter regular expression the way it works in other languages
+```
+" start with \v
+execute "normal! gg" . "/\vfor .+" 
+" :help magic for more information 
+```
+
+* Loops
+```
+while 1 > 0
+  call functionName()
+endwhile
+
+let words = { 1 : "one", 2: "two", 3: "three" }
+for [key, val] in items(words)
+  echo key . ': ' . val
+endfor
 ```
 
 

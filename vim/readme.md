@@ -1,4 +1,5 @@
 * [Vim Wiki](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
+* [Learn Vimscript the hard way](https://learnvimscriptthehardway.stevelosh.com/)
 
 # Problems
 * If you are getting "Sorry, the command is not available in this version…” try installing
@@ -1321,5 +1322,35 @@ vim -r file.txt
 :recover! file.txt
 ```
 
+* To toggle boolean options
+```
+" if number is set, it unsets it, otherwise it sets it
+:set number!
+:set nonumber!
+```
 
+
+## Vimscript
+
+### [hello.vim](hello.vim)
+* echo message
+* string concatenation
+* echo vs echom
+* :messages command
+* comments
+
+
+### [loops.vim](loops.vim)
+* for loop
+* dictionary
+* string concatenation 
+* list functions
+
+### [dicts.vim](dicts.vim)
+* dictionary
+* dictionary functions
+
+### [paths.vim](paths.vim)
+* paths
+* path functions
 
