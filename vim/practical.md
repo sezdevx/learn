@@ -298,6 +298,16 @@ Type / and then up and down arrows
 ```
 
 ## Buffers
+* To go to the previously visited buffer
+```
+Ctrl-o
+```
+
+* To go to the next visited buffer 
+```
+Ctrl-i
+```
+
 * To kill the current buffer
 ```
 :bdelete
@@ -369,6 +379,18 @@ yy
 ```
 p
 P
+```
+
+* To cut a string including quotes
+```
+da"
+da'
+```
+
+* To cut a string excluding quotes
+```
+di"
+di'
 ```
 
 ## Editing
@@ -870,7 +892,7 @@ autocmd BufWritePre *.html :normal gg=G
 augroup pythongroup
   autocmd!
   autocmd FileType html nnoremap <buffer> <localleader>f Vatzf
-augroup
+augroup END
 ```
 
 * Movement mappings

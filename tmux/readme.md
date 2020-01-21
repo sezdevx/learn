@@ -29,7 +29,7 @@
   * To zoom in on a pane `Ctrl-b-z`
   * To zoom out on a pane `Ctrl-b-z`
 * To switch to another session `Ctrl-b-(` or `Ctrl-b-)`
-* Type `exit` to kill a pane or a window or a session
+* Type `exit` to kill a pane or a window or a session or alternatively `Ctrl-b-x`
 
 #### Resizing panes
 * `Ctrl-b-:` to go to command mode in tmux
@@ -40,5 +40,7 @@
     * `resize-pane -L 2` to move the separator left 2 lines
     * `resize-pane -R 2` to move the separator right 2 lines
 
-
+#### Scroll in a pane
+* `Ctrl-b-[` to go to scroll mode, in scroll mode you can use
+arrows and other keys to go up and down. `q` to exit the scroll mode.
 

@@ -1,8 +1,5 @@
 # Ubuntu
 
-## Other Programs
-* [tmux](tmux.md)
-
 ## Package manager
 ```
 # install a new package
