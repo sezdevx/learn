@@ -256,6 +256,27 @@ Type / and then up and down arrows
 :goto 123
 ```
 
+## Character and line editing and searching
+* To replace a character with another character
+```
+" replaces the current character with 't'
+rt
+" replaces the current character with 'e'
+re
+```
+
+* To search for a character in current line
+```
+" find the character 'x' after cursor
+fx
+" find the character 'x' before cursor
+Fx
+" same as f except it moves the cursor right before the found character
+tx
+" same as F except it moves the cursor right after the found character
+Tx
+```
+
 ## Help
 * To display help for a particular command
 ```
