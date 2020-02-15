@@ -1,3 +1,10 @@
+## Learning Python
+* Raw strings can not end in a single backslash
+```python
+c = r'This is not corret\' # NOT A VALID string
+c = r'This is correct\\'[:-1] # we remove the last character so it ends with \
+```
+
 ## Introducing Python
 
 ### Keywords
@@ -2034,3 +2041,4 @@ cfg = configparser.ConfigParser()
 cfg.read('my_config.ini')
 print(cfg['section']['option'])
 ```
+
