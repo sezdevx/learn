@@ -1,6 +1,7 @@
 from enum import Enum
 import unittest
 
+
 class WordKind(Enum):
     Male = 'male'
     Female = 'female'
@@ -11,7 +12,7 @@ class WordKind(Enum):
     Pronoun = 'pronoun'
     Verb = 'verb'
     Preposition = 'preposition'
-    Conjuction = 'conjuction'
+    Conjunction = 'conjunction'
     Interjection = 'interjection'
     PronominalVerb = 'pronominal-verb'
     Unknown = 'unknown'
@@ -30,9 +31,9 @@ class WordKind(Enum):
             return ''
 
     @classmethod
-    def parse(cls, str):
+    def parse(cls, string):
         global w2kind
-        return w2kind.get(str.strip().lower(), None)
+        return w2kind.get(string.strip().lower(), None)
 
     @classmethod
     def simple_name(cls, kind):
@@ -66,6 +67,7 @@ class WordKind(Enum):
     def unknown(self):
         return self.value == WordKind.Unknown.value
 
+
 w2kind = {
     'male': WordKind.Male,
     'm': WordKind.Male,
@@ -92,13 +94,12 @@ w2kind = {
     'preposition': WordKind.Preposition,
     'pre': WordKind.Preposition,
     'prep': WordKind.Preposition,
-    'conjuction': WordKind.Conjuction,
-    'conj': WordKind.Conjuction,
+    'Conjunction': WordKind.Conjunction,
+    'conj': WordKind.Conjunction,
     'interjection': WordKind.Interjection,
     'inter': WordKind.Interjection,
     'unknown': WordKind.Unknown
 }
-
 
 kind2w = {
     WordKind.Male: 'male',
@@ -111,10 +112,11 @@ kind2w = {
     WordKind.Verb: 'v',
     WordKind.PronominalVerb: 'pv',
     WordKind.Preposition: 'pre',
-    WordKind.Conjuction: 'conj',
+    WordKind.Conjunction: 'conj',
     WordKind.Interjection: 'inter',
     WordKind.Unknown: 'unknown'
 }
+
 
 class WordKindTesting(unittest.TestCase):
     def test_is_noun(self):
@@ -158,11 +160,12 @@ class WordKindTesting(unittest.TestCase):
         assert WordKind.parse('pronoun') == WordKind.Pronoun
         assert WordKind.parse('pro') == WordKind.Pronoun
 
-        assert WordKind.parse('conj') == WordKind.Conjuction
-        assert WordKind.parse('conjuction') == WordKind.Conjuction
+        assert WordKind.parse('conj') == WordKind.Conjunction
+        assert WordKind.parse('Conjunction') == WordKind.Conjunction
 
         assert WordKind.parse('verb') == WordKind.Verb
         assert WordKind.parse('v') == WordKind.Verb
+
 
 if __name__ == 'main':
     word_kind_suite = unittest.TestSuite()
@@ -171,5 +174,3 @@ if __name__ == 'main':
     word_kind_suite.addTest(WordKindTesting("test_parse"))
     runner = unittest.TextTestRunner()
     runner.run(word_kind_suite)
-
-

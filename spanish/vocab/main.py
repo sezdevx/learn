@@ -24,8 +24,6 @@ def practice(bank, pit):
         for c in p.choices:
             print(i, ')', c)
             i+=1
-        answer =
-
 
 def ls_command(bank, options, name):
     if 'c' in options:

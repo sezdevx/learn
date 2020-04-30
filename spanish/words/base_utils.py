@@ -1,11 +1,84 @@
 import re
 import unicodedata
 
+class VocabError(Exception):
+    pass
+
+class InvalidCommandError(VocabError):
+    def __init__(self, message = ""):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
+class QuoteError(VocabError):
+    def __init__(self, message = ""):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+class NotValidTagName(VocabError):
+    def __init__(self, message = ""):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+class NotValidWordName(VocabError):
+    def __init__(self, message = ""):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
 
 # partially based on https://github.com/bermi/Python-Inflector/blob/master/rules/spanish.py
 # other useful projects: https://github.com/jaumeortola/spanish-dict-tools
+class LangUtils():
 
-class Spanish():
+    @classmethod
+    def dequote_and_split(cls, value):
+        r = []
+        in_phrase = False
+        start = 0
+        symbol = ""
+        i = 0
+        while i < len(value):
+            if in_phrase:
+                if value[i] == symbol:
+                    in_phrase = False
+                    r.append(value[start:i].strip())
+                    start = i + 1
+            elif value[i] == '"' or value[i] == "'":
+                in_phrase = True
+                symbol = value[i]
+                start = i+1
+            elif value[i] == ',' and start != i:
+                r.append(value[start:i].strip())
+                start = i+1
+            i+=1
+        if start < i:
+            r.append(value[start:i].strip())
+        return r
+        # i = 0
+        # while i < len(values):
+        #     values[i] = cls.dequote(values[i])
+        #     i += 1
+
+    @classmethod
+    def dequote(cls, text):
+        if len(text) <= 1:
+            return text
+        if text.startswith('"') or text.startswith("'"):
+            symbol = text[0]
+            if not text.endswith(symbol):
+                raise QuoteError("Not properly quoted: " + text)
+            return text[1:-1].strip()
+        else:
+            return text
+
     @classmethod
     def normalize(cls, text):
         """Normalizes a word, removing accents etc.."""

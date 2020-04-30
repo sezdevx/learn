@@ -532,10 +532,3 @@ if __name__ == 'main':
     runner = unittest.TextTestRunner()
     runner.run(command_kind_suite)
 
-
-
-
-
-
-
-
