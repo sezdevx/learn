@@ -2,6 +2,106 @@ from enum import Enum
 from bank_utils import VocabError
 import unittest
 import re
+from spanish import Spanish
+
+class InvalidWordObjName(VocabError):
+    def __init__(self, message = ""):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+class WordAttribute():
+    def __init__(self, attribute, attribute_idx, word):
+
+        pass
+
+class Word():
+    @property
+    def exists(self):
+        return self.real_index != -1
+
+    def __init__(self, word, index, words, bank):
+        self.words = words
+        self.bank = bank
+        self.index = index
+        self.kind = WordKind.Unknown
+
+        if word.startswith("el "):
+            self.kind = WordKind.Male
+            word = word[3:]
+        elif word.startswith("la "):
+            self.kind = WordKind.Female
+            word = word[3:]
+        elif word.startswith("los "):
+            self.kind = WordKind.PluralMale
+            word = word[4:]
+        elif word.startswith('las '):
+            self.kind = WordKind.PluralFemale
+            word = word[4:]
+
+        self.name = word
+        self.normalized = Spanish.normalize(self.name)
+        self.word_key = self.normalized
+        self.meanings = None
+        self.real_index = -1
+        self.find()
+
+    def find(self):
+        word_node = self.words.get(self.word_key, None)
+        if not word_node:
+            # in case the other word is deleted
+            word_node = self.words.get(self.name, None)
+            if not word_node:
+                return None
+            self.word_key = self.name
+        elif word_node[0] != self.name:
+            if self.word_key == self.name: # already normalized
+                self.name = word_node[0]
+            else: # try another node
+                word_node = self.words.get(self.name, None)
+                if not word_node:
+                    return None
+                self.word_key = self.name
+
+        self.meanings = word_node[2]
+
+        kind = WordKind.parse(word_node[1])
+        if 0 < self.index <= len(self.meanings):
+            if self.meanings[self.index-1].get('wk', None):
+                kind =  WordKind.parse(self.meanings[self.index-1]['wk'])
+            self.real_index = self.index - 1
+        else:
+            if self.index != 0:
+                raise VocabError("Invalid index: " + str(self))
+
+        if self.kind.unknown:
+            self.kind = kind
+        elif self.kind != kind:
+            raise VocabError("Mismatched kinds: " + str(self))
+
+
+class Words():
+
+    def __init__(self, words, bank):
+        self.bank = bank
+        self.words = words
+
+    def __getitem__(self, word):
+        name, index, attrib, attrib_index = WordObjName.parse_object_name(word)
+        if not attrib:
+            w = Word(name, index, self.words, self.bank)
+            if w.exists:
+                return w
+        else:
+            w = Word(name, index, self)
+            if w.exists:
+                wa = WordAttribute(attrib, attrib_index, w)
+                if wa.exists:
+                    return wa
+        return None
+
+
 
 class InvalidWordObjName(VocabError):
     def __init__(self, message = ""):
@@ -15,8 +115,20 @@ class WordAttribs(Enum):
     SYNONYMS = 'synonyms'
     ANONYMS = 'anonyms'
     IMAGES = 'images'
-    SOUNDS = 'sounds'
     KEYWORD = 'keyword'
+
+    @classmethod
+    def get_json_key(cls, attrib):
+        if attrib == WordAttribs.SYNONYMS:
+            return 's'
+        elif attrib == WordAttribs.IMAGES:
+            return 'i'
+        elif attrib == WordAttribs.ANONYMS:
+            return 'a'
+        elif attrib == WordAttribs.KEYWORD:
+            return 'k'
+        else:
+            return None
 
     @classmethod
     def is_list(cls, attrib):
@@ -103,6 +215,9 @@ class WordKind(Enum):
     def parse(cls, str):
         global w2kind
         return w2kind.get(str.strip().lower(), None)
+
+    def unknown(self):
+        return self.value == 'u'
 
     def __str__(self):
         return self.value
