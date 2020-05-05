@@ -5,6 +5,7 @@ from tags import TagObjName
 from tags import InvalidTagObjName
 from words import WordAttribs
 from words import WordObjName
+from words import WordKind
 from words import InvalidWordObjName
 from bank_utils import VocabError
 from bank_utils import BankUtils
@@ -114,7 +115,7 @@ class CommandParser():
     def course_change(self, original, cmd, options):
         return [CommandKind.COURSE_CHANGE, options, cmd]
 
-    def meaning_assignment(self, original, cmd, symbol, cmd_kind):
+    def word_assignment(self, original, cmd, symbol, cmd_kind, kind = WordKind.Unknown):
         idx = cmd.find(symbol)
         symbol_len = len(symbol)
 
@@ -129,6 +130,25 @@ class CommandParser():
 
         name, meaning_idx, attribute, attribute_idx = tuple(WordObjName.parse_object_name(word))
 
+        mkind = WordKind.Unknown
+        if name.startswith("el "):
+            mkind = WordKind.Male
+            name = name[3:]
+        elif name.startswith("la "):
+            mkind = WordKind.Female
+            name = name[3:]
+        elif name.startswith("los "):
+            mkind = WordKind.PluralMale
+            name = name[4:]
+        elif name.startswith("las "):
+            mkind = WordKind.PluralFemale
+            name = name[4:]
+        if mkind != WordKind.Unknown:
+            if kind == WordKind.Unknown:
+                kind = mkind
+            elif kind != mkind:
+                raise VocabError("Mismatched kind for : " + word + " in " + original)
+
         if attribute:
             if WordAttribs.is_list(attribute):
                 values = BankUtils.dequote_and_split(value)
@@ -140,7 +160,7 @@ class CommandParser():
             values = [a.strip() for a in value.split(',')]
 
 
-        return [cmd_kind, name, meaning_idx, attribute, attribute_idx, values]
+        return [cmd_kind, kind, name, meaning_idx, attribute, attribute_idx, values]
 
 
     def tag_assignment(self, original, cmd, symbol, cmd_kind):
@@ -189,13 +209,26 @@ class CommandParser():
                     cmd = cmd[:idx] + ' = ' + cmd[idx+1:]
                     return self.tag_assignment(original, cmd, '=', CommandKind.TAG_ASSIGN)
 
+        elif cmd.startswith('('):
+            idx = cmd.find(')')
+            if idx == -1:
+                raise InvalidCommandError("Not closed parentheses: " + original)
+            kind = WordKind.parse(cmd[1:idx].strip())
+            cmd = cmd[idx+1:]
+            if cmd.find('-=') != -1:
+                return self.word_assignment(original, cmd, '-=', CommandKind.WORD_REMOVE, kind)
+            elif cmd.find('+=') != -1:
+                return self.word_assignment(original, cmd, '+=', CommandKind.WORD_APPEND, kind)
+            else:
+                return self.word_assignment(original, cmd, '=', CommandKind.WORD_ASSIGN, kind)
+
         elif cmd.find("=") != -1:
             if cmd.find('-=') != -1:
-                return self.meaning_assignment(original, cmd, '-=', CommandKind.WORD_REMOVE)
+                return self.word_assignment(original, cmd, '-=', CommandKind.WORD_REMOVE)
             elif cmd.find('+=') != -1:
-                return self.meaning_assignment(original, cmd, '+=', CommandKind.WORD_APPEND)
+                return self.word_assignment(original, cmd, '+=', CommandKind.WORD_APPEND)
             else:
-                return self.meaning_assignment(original, cmd, '=', CommandKind.WORD_ASSIGN)
+                return self.word_assignment(original, cmd, '=', CommandKind.WORD_ASSIGN)
 
         elif cmd.startswith('mkdir '):
 
@@ -278,8 +311,13 @@ class Testing(unittest.TestCase):
         parser = CommandParser(None)
         for key in commands:
             r = parser.parse_command(key)
-            print(r)
-            assert r == commands[key]
+            try:
+                assert r == commands[key]
+            except:
+                print(r)
+                print(commands[key])
+                assert False
+
 
     def test_lookups(self):
         commands = {
@@ -290,40 +328,41 @@ class Testing(unittest.TestCase):
 
     def test_word_assignment(self):
         commands = {
-            "el padre = father": [CommandKind.WORD_ASSIGN, "el padre", 0, None, 0, ["father"]],
-            "el padre=father": [CommandKind.WORD_ASSIGN, "el padre", 0, None, 0, ["father"]],
-            "el padre[1]=father": [CommandKind.WORD_ASSIGN, "el padre", 1, None, 0, ["father"]],
-            "el padre +=father": [CommandKind.WORD_APPEND, "el padre", 0, None, 0, ["father"]],
-            "el padre -=father": [CommandKind.WORD_REMOVE, "el padre", 0, None, 0, ["father"]],
-            "el padre-=father": [CommandKind.WORD_REMOVE, "el padre", 0, None, 0, ["father"]],
-            "el padre[1]:IMAGES = '/path/to/image.file'": [CommandKind.WORD_ASSIGN, "el padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
-            "el padre[1]:IMAGES -= '/path/to/image.file'": [CommandKind.WORD_REMOVE, "el padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
-            "el padre[1]:IMAGES += '/path/to/image.file'": [CommandKind.WORD_APPEND, "el padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
+            "el padre = father": [CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 0, None, 0, ["father"]],
+            "el padre=father": [CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 0, None, 0, ["father"]],
+            "(adj) inteligente = intelligent": [CommandKind.WORD_ASSIGN, WordKind.Adjective, "inteligente", 0, None, 0, ["intelligent"]],
+            "el padre[1]=father": [CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 1, None, 0, ["father"]],
+            "el padre +=father": [CommandKind.WORD_APPEND, WordKind.Male, "padre", 0, None, 0, ["father"]],
+            "el padre -=father": [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 0, None, 0, ["father"]],
+            "el padre-=father": [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 0, None, 0, ["father"]],
+            "el padre[1]:IMAGES = '/path/to/image.file'": [CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
+            "el padre[1]:IMAGES -= '/path/to/image.file'": [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
+            "el padre[1]:IMAGES += '/path/to/image.file'": [CommandKind.WORD_APPEND, WordKind.Male, "padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
         }
         self.check(commands)
 
         parser = CommandParser(None)
         try:
             r = parser.parse_command("el padre[1]:IMAGES[1] -= '/path/to/image.file'")
-            assert r == [CommandKind.WORD_REMOVE, "el padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']]
+            assert r == [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']]
         except InvalidCommandError as e:
             assert e.message == "Can not remove or append to an attribute value: el padre[1]:IMAGES[1] -= '/path/to/image.file'"
 
         try:
             r = parser.parse_command("el padre&[1]:IMAGES[1] -= '/path/to/image.file'")
-            assert r == [CommandKind.WORD_REMOVE, "el padre&", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']]
+            assert r == [CommandKind.WORD_REMOVE, WordKind.Male, "padre&", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']]
         except InvalidWordObjName as e:
             assert e.message == "Not a valid word name: el padre&[1]:IMAGES[1] in 'el padre&[1]:IMAGES[1] -= '/path/to/image.file''"
 
         try:
             r = parser.parse_command("= '/path/to/image.file'")
-            assert r == [CommandKind.WORD_REMOVE, "", 0, None, 0, ['/path/to/image.file']]
+            assert r == [CommandKind.WORD_REMOVE, WordKind.Unknown, "", 0, None, 0, ['/path/to/image.file']]
         except InvalidCommandError as e:
             assert e.message == "Invalid command: = '/path/to/image.file'"
 
         try:
             r = parser.parse_command("el padre =")
-            assert r == [CommandKind.WORD_REMOVE, "el padre", 0, None, 0, ['']]
+            assert r == [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 0, None, 0, ['']]
         except InvalidCommandError as e:
             assert e.message == "Invalid command: el padre ="
 

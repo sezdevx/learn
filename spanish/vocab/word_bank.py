@@ -619,6 +619,7 @@ class WordBank():
         else:
             self.word_bank_path = ':memory'
             self.bank = {'words': {}, 'tags': {}}
+
         self.history = []
         self.pwd = None
         self.ppwd = None

@@ -4,22 +4,54 @@ import unittest
 import re
 from spanish import Spanish
 
-class InvalidWordObjName(VocabError):
-    def __init__(self, message = ""):
-        self.message = message
+class WordTextAttribute():
+    def __init__(self, attrib, word):
+        self.word = word
+        self.attrib = attrib
+        self.key = attrib.key
+
+    def assign(self, text):
+        self.word.node[self.key] = text
+
+    def remove(self):
+        del self.word.node[self.key]
+
+
+class WordListAttribute():
+    def __init__(self, attrib, attribute_idx, word):
+        self.word = word
+        self.attribute = attrib
+        self.index = attribute_idx
+        self.key = attrib.key
+
+    def assign(self, value):
+        if isinstance(value, list):
+            if self.index == 0:
+                self.word.node[self.key] = value
+            else:
+                raise VocabError("Can not assign a list to index: " + str(self))
+        elif self.index != 0:
+            node = self.word.node[self.key]
+            node[self.index-1] = value
+        else:
+            self.word.node[self.key] = [value]
 
     def __str__(self):
-        return self.message
+        if self.index == 0:
+            return str(self.word) + str(self.attribute)
+        else:
+            return str(self.word) + str(self.attribute) + "[" + self.index + "]"
 
-class WordAttribute():
-    def __init__(self, attribute, attribute_idx, word):
-
-        pass
+    def remove(self):
+        if self.index == 0:
+            del self.word.node[self.key]
+        else:
+            self.word.node[self.key].remove(self.index-1)
 
 class Word():
     @property
     def exists(self):
-        return self.real_index != -1
+        return self.node != None
 
     def __init__(self, word, index, words, bank):
         self.words = words
@@ -45,7 +77,31 @@ class Word():
         self.word_key = self.normalized
         self.meanings = None
         self.real_index = -1
+        self.node = None
         self.find()
+        if self.real_index != -1:
+            self.node = self.meanings[self.real_index]
+
+    def create(self, kind, meaning):
+        if self.index != 0:
+            raise VocabError("Can not create a word with an index: " + str(self))
+
+        word_node = self.words.get(self.word_key, None)
+        if not word_node:
+            word_node = [self.name, self.kind, []]
+            self.words[self.word_key] = word_node
+        elif word_node[0] != self.name:
+            if self.word_key == self.name: # already normalized
+                self.name = word_node[0]
+            else: # try another node
+                word_node = self.words.get(self.name, None)
+                if not word_node:
+                    word_node = [self.name, self.kind, []]
+                    self.words[self.word_key] = word_node
+                self.word_key = self.name
+
+        self.meanings = word_node[2]
+
 
     def find(self):
         word_node = self.words.get(self.word_key, None)
@@ -74,11 +130,28 @@ class Word():
         else:
             if self.index != 0:
                 raise VocabError("Invalid index: " + str(self))
+            self.real_index = 0
 
         if self.kind.unknown:
             self.kind = kind
         elif self.kind != kind:
             raise VocabError("Mismatched kinds: " + str(self))
+
+    def get_attribute(self, attrib, attrib_index):
+        if not attrib or not self.node:
+            return None
+        key = attrib.key
+        a = self.node.get(key, None)
+        if not a:
+            return None
+
+        if WordAttribs.is_list(attrib):
+            if 0 <= attrib_index <= len(a):
+                return WordListAttribute(attrib, attrib_index, self)
+            else:
+                raise InvalidWordObjName("Invalid index: " + attrib + " " + attrib_index + " for word " + str(self))
+        else:
+            return WordTextAttribute(attrib, self)
 
 
 class Words():
@@ -94,13 +167,18 @@ class Words():
             if w.exists:
                 return w
         else:
-            w = Word(name, index, self)
+            w = Word(name, index, self.words, self.bank)
             if w.exists:
-                wa = WordAttribute(attrib, attrib_index, w)
-                if wa.exists:
-                    return wa
+                return w.get_attribute(attrib, attrib_index)
         return None
 
+    @property
+    def count(self):
+        return len(self.words)
+
+    def add(self, word, index, meaning):
+        w = Word(word, index, self.words, self.bank)
+        w.create()
 
 
 class InvalidWordObjName(VocabError):
@@ -116,6 +194,10 @@ class WordAttribs(Enum):
     ANONYMS = 'anonyms'
     IMAGES = 'images'
     KEYWORD = 'keyword'
+
+    @property
+    def key(self):
+        return WordAttribs.get_json_key(self)
 
     @classmethod
     def get_json_key(cls, attrib):
@@ -260,6 +342,11 @@ w2kind = {
 }
 
 class Testing(unittest.TestCase):
+    def test_words(self):
+        words = Words({}, None)
+        words.add("el padre", ["father"])
+        assert words.count == 1
+
     def test_word_kind_parse(self):
         assert WordKind.parse("v") == WordKind.Verb
         assert WordKind.parse("verb") == WordKind.Verb
