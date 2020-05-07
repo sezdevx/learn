@@ -53,24 +53,36 @@ class Word():
     def exists(self):
         return self.node != None
 
-    def __init__(self, word, index, words, bank):
+    @classmethod
+    def parse(cls, name):
+        word = name
+        if word.startswith("el "):
+            kind = WordKind.Male
+            word = word[3:]
+        elif word.startswith("la "):
+            kind = WordKind.Female
+            word = word[3:]
+        elif word.startswith("los "):
+            kind = WordKind.PluralMale
+            word = word[4:]
+        elif word.startswith('las '):
+            kind = WordKind.PluralFemale
+            word = word[4:]
+
+        if word.endswith(']'):
+            idx = word.find('[')
+            if idx == -1:
+                raise InvalidWordObjName("Missing [ in " + name)
+            index = word[idx+1:-1]
+            if not index.isnumeric():
+
+
+    def __init__(self, kind, word, index, words, bank):
+        self.kind = kind
         self.words = words
         self.bank = bank
         self.index = index
         self.kind = WordKind.Unknown
-
-        if word.startswith("el "):
-            self.kind = WordKind.Male
-            word = word[3:]
-        elif word.startswith("la "):
-            self.kind = WordKind.Female
-            word = word[3:]
-        elif word.startswith("los "):
-            self.kind = WordKind.PluralMale
-            word = word[4:]
-        elif word.startswith('las '):
-            self.kind = WordKind.PluralFemale
-            word = word[4:]
 
         self.name = word
         self.normalized = Spanish.normalize(self.name)
