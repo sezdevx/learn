@@ -128,21 +128,8 @@ class CommandParser():
         if not WordObjName.is_valid(word):
             raise InvalidWordObjName("Not a valid word name: " + word + " in '" + original + "'")
 
-        name, meaning_idx, attribute, attribute_idx = tuple(WordObjName.parse_object_name(word))
+        name, mkind, meaning_idx, attribute, attribute_idx = tuple(WordObjName.parse_object_name(word))
 
-        mkind = WordKind.Unknown
-        if name.startswith("el "):
-            mkind = WordKind.Male
-            name = name[3:]
-        elif name.startswith("la "):
-            mkind = WordKind.Female
-            name = name[3:]
-        elif name.startswith("los "):
-            mkind = WordKind.PluralMale
-            name = name[4:]
-        elif name.startswith("las "):
-            mkind = WordKind.PluralFemale
-            name = name[4:]
         if mkind != WordKind.Unknown:
             if kind == WordKind.Unknown:
                 kind = mkind
@@ -160,7 +147,7 @@ class CommandParser():
             values = [a.strip() for a in value.split(',')]
 
 
-        return [cmd_kind, kind, name, meaning_idx, attribute, attribute_idx, values]
+        return [cmd_kind, name, kind, meaning_idx, attribute, attribute_idx, values]
 
 
     def tag_assignment(self, original, cmd, symbol, cmd_kind):
@@ -321,48 +308,48 @@ class Testing(unittest.TestCase):
 
     def test_lookups(self):
         commands = {
-            "el padre": [CommandKind.WORD_LOOKUP, "", [["el padre", 0, None, 0]]],
+            "el padre": [CommandKind.WORD_LOOKUP, "", [["padre", WordKind.Male, 0, None, 0]]],
             "mi madre es inteligente": [CommandKind.PHRASE_LOOKUP, "", 'mi madre es inteligente'],
         }
         self.check(commands)
 
     def test_word_assignment(self):
         commands = {
-            "el padre = father": [CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 0, None, 0, ["father"]],
-            "el padre=father": [CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 0, None, 0, ["father"]],
-            "(adj) inteligente = intelligent": [CommandKind.WORD_ASSIGN, WordKind.Adjective, "inteligente", 0, None, 0, ["intelligent"]],
-            "el padre[1]=father": [CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 1, None, 0, ["father"]],
-            "el padre +=father": [CommandKind.WORD_APPEND, WordKind.Male, "padre", 0, None, 0, ["father"]],
-            "el padre -=father": [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 0, None, 0, ["father"]],
-            "el padre-=father": [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 0, None, 0, ["father"]],
-            "el padre[1]:IMAGES = '/path/to/image.file'": [CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
-            "el padre[1]:IMAGES -= '/path/to/image.file'": [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
-            "el padre[1]:IMAGES += '/path/to/image.file'": [CommandKind.WORD_APPEND, WordKind.Male, "padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
+            "el padre = father": [CommandKind.WORD_ASSIGN, "padre", WordKind.Male, 0, None, 0, ["father"]],
+            "el padre=father": [CommandKind.WORD_ASSIGN, "padre", WordKind.Male, 0, None, 0, ["father"]],
+            "(adj) inteligente = intelligent": [CommandKind.WORD_ASSIGN, "inteligente", WordKind.Adjective, 0, None, 0, ["intelligent"]],
+            "el padre[1]=father": [CommandKind.WORD_ASSIGN, "padre", WordKind.Male, 1, None, 0, ["father"]],
+            "el padre +=father": [CommandKind.WORD_APPEND, "padre", WordKind.Male, 0, None, 0, ["father"]],
+            "el padre -=father": [CommandKind.WORD_REMOVE, "padre", WordKind.Male, 0, None, 0, ["father"]],
+            "el padre-=father": [CommandKind.WORD_REMOVE, "padre", WordKind.Male, 0, None, 0, ["father"]],
+            "el padre[1]:IMAGES = '/path/to/image.file'": [CommandKind.WORD_ASSIGN, "padre", WordKind.Male, 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
+            "el padre[1]:IMAGES -= '/path/to/image.file'": [CommandKind.WORD_REMOVE, "padre", WordKind.Male, 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
+            "el padre[1]:IMAGES += '/path/to/image.file'": [CommandKind.WORD_APPEND, "padre", WordKind.Male, 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']],
         }
         self.check(commands)
 
         parser = CommandParser(None)
         try:
             r = parser.parse_command("el padre[1]:IMAGES[1] -= '/path/to/image.file'")
-            assert r == [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']]
+            assert r == [CommandKind.WORD_REMOVE, "padre", WordKind.Male, 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']]
         except InvalidCommandError as e:
             assert e.message == "Can not remove or append to an attribute value: el padre[1]:IMAGES[1] -= '/path/to/image.file'"
 
         try:
             r = parser.parse_command("el padre&[1]:IMAGES[1] -= '/path/to/image.file'")
-            assert r == [CommandKind.WORD_REMOVE, WordKind.Male, "padre&", 1, WordAttribs.IMAGES, 0, ['/path/to/image.file']]
+            assert r == [CommandKind.WORD_REMOVE, "padre&", 1, WordKind.Male, WordAttribs.IMAGES, 0, ['/path/to/image.file']]
         except InvalidWordObjName as e:
             assert e.message == "Not a valid word name: el padre&[1]:IMAGES[1] in 'el padre&[1]:IMAGES[1] -= '/path/to/image.file''"
 
         try:
             r = parser.parse_command("= '/path/to/image.file'")
-            assert r == [CommandKind.WORD_REMOVE, WordKind.Unknown, "", 0, None, 0, ['/path/to/image.file']]
+            assert r == [CommandKind.WORD_REMOVE, "", WordKind.Unknown, 0, None, 0, ['/path/to/image.file']]
         except InvalidCommandError as e:
             assert e.message == "Invalid command: = '/path/to/image.file'"
 
         try:
             r = parser.parse_command("el padre =")
-            assert r == [CommandKind.WORD_REMOVE, WordKind.Male, "padre", 0, None, 0, ['']]
+            assert r == [CommandKind.WORD_REMOVE, "padre", WordKind.Male, 0, None, 0, ['']]
         except InvalidCommandError as e:
             assert e.message == "Invalid command: el padre ="
 
@@ -402,10 +389,10 @@ class Testing(unittest.TestCase):
 
     def test_word_delete(self):
         commands = {
-            "rm el padre": [CommandKind.WORD_DELETE, '', [["el padre", 0, None, 0]]],
-            "rm el padre[1]": [CommandKind.WORD_DELETE, '', [["el padre", 1, None, 0]]],
-            "rm el padre[1]:IMAGES": [CommandKind.WORD_DELETE, '', [["el padre", 1, WordAttribs.IMAGES, 0]]],
-            "rm el padre[1]:IMAGES, la madre": [CommandKind.WORD_DELETE, '', [["el padre", 1, WordAttribs.IMAGES, 0], ["la madre", 0, None, 0]]],
+            "rm el padre": [CommandKind.WORD_DELETE, '', [["padre", WordKind.Male, 0, None, 0]]],
+            "rm el padre[1]": [CommandKind.WORD_DELETE, '', [["padre", WordKind.Male, 1, None, 0]]],
+            "rm el padre[1]:IMAGES": [CommandKind.WORD_DELETE, '', [["padre", WordKind.Male, 1, WordAttribs.IMAGES, 0]]],
+            "rm el padre[1]:IMAGES, la madre": [CommandKind.WORD_DELETE, '', [["padre", WordKind.Male, 1, WordAttribs.IMAGES, 0], ["madre", WordKind.Female, 0, None, 0]]],
         }
         self.check(commands)
 

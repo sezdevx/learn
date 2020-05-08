@@ -56,6 +56,7 @@ class Word():
     @classmethod
     def parse(cls, name):
         word = name
+        kind = WordKind.Unknown
         if word.startswith("el "):
             kind = WordKind.Male
             word = word[3:]
@@ -69,38 +70,80 @@ class Word():
             kind = WordKind.PluralFemale
             word = word[4:]
 
+        index = 0
         if word.endswith(']'):
             idx = word.find('[')
             if idx == -1:
                 raise InvalidWordObjName("Missing [ in " + name)
             index = word[idx+1:-1]
             if not index.isnumeric():
+                raise InvalidWordObjName("Not a valid index: " + name)
+            index = int(index)
+            word = word[:idx]
 
+        return [word, kind, index]
 
-    def __init__(self, kind, word, index, words, bank):
+    def __init__(self, word, kind, index, words, bank):
         self.kind = kind
         self.words = words
         self.bank = bank
         self.index = index
-        self.kind = WordKind.Unknown
 
         self.name = word
         self.normalized = Spanish.normalize(self.name)
         self.word_key = self.normalized
-        self.meanings = None
+        self.meanings = []
         self.real_index = -1
         self.node = None
         self.find()
         if self.real_index != -1:
             self.node = self.meanings[self.real_index]
 
-    def create(self, kind, meaning):
+    def __str__(self):
+        if self.index != 0:
+            return self.name + "[" + str(self.index) + "]"
+        else:
+            return self.name
+
+    def delete(self):
+        if self.exists:
+            # TODO: complete this
+            # update other stuff
+            del self.meanings[self.real_index]
+            if len(self.meanings) == 0:
+                del self.words[self.word_key]
+            self.node = None
+            self.real_index = -1
+
+    @property
+    def meaning(self):
+        if self.exists:
+            return ', '.join(self.node['m'])
+        else:
+            return ''
+
+    def update(self, meaning):
+        if self.index == 0:
+            raise VocabError("Can not update a word without an index: " + str(self))
+        self.node['m'] = meaning
+
+    def create_word_node(self, meaning):
+        return {
+            'm': meaning,
+            's': [],
+            'a': [],
+        }
+
+    def create(self, meaning):
         if self.index != 0:
             raise VocabError("Can not create a word with an index: " + str(self))
 
+        if self.kind == WordKind.Unknown and meaning[0].startswith('to '):
+            self.kind = WordKind.Verb
+
         word_node = self.words.get(self.word_key, None)
         if not word_node:
-            word_node = [self.name, self.kind, []]
+            word_node = [self.name, str(self.kind), []]
             self.words[self.word_key] = word_node
         elif word_node[0] != self.name:
             if self.word_key == self.name: # already normalized
@@ -108,11 +151,14 @@ class Word():
             else: # try another node
                 word_node = self.words.get(self.name, None)
                 if not word_node:
-                    word_node = [self.name, self.kind, []]
+                    word_node = [self.name, str(self.kind), []]
                     self.words[self.word_key] = word_node
                 self.word_key = self.name
 
         self.meanings = word_node[2]
+        self.node = self.create_word_node(meaning)
+        self.meanings.append(self.node)
+        self.real_index = len(self.meanings) - 1
 
 
     def find(self):
@@ -168,18 +214,18 @@ class Word():
 
 class Words():
 
-    def __init__(self, words, bank):
+    def __init__(self, bank):
         self.bank = bank
-        self.words = words
+        self.words = bank.data['words']
 
     def __getitem__(self, word):
-        name, index, attrib, attrib_index = WordObjName.parse_object_name(word)
+        name, kind, index, attrib, attrib_index = WordObjName.parse_object_name(word)
         if not attrib:
-            w = Word(name, index, self.words, self.bank)
+            w = Word(name, kind, index, self.words, self.bank)
             if w.exists:
                 return w
         else:
-            w = Word(name, index, self.words, self.bank)
+            w = Word(name, kind, index, self.words, self.bank)
             if w.exists:
                 return w.get_attribute(attrib, attrib_index)
         return None
@@ -188,9 +234,14 @@ class Words():
     def count(self):
         return len(self.words)
 
-    def add(self, word, index, meaning):
-        w = Word(word, index, self.words, self.bank)
-        w.create()
+    def add_word(self, word, kind, index, meaning):
+        w = Word(word, kind, index, self.words, self.bank)
+        w.create(meaning)
+        return w
+
+    def remove_word(self, word, kind, index):
+        w = Word(word, kind, index, self.words, self.bank)
+        w.delete()
 
 
 class InvalidWordObjName(VocabError):
@@ -287,7 +338,21 @@ class WordObjName():
         if attrib and not WordAttribs.is_list(attrib) and attrib_idx != 0:
             raise InvalidWordObjName("Not a list attribute: " + attrib + " in " + word)
 
-        return [name, meaning_idx, attrib, attrib_idx]
+        kind = WordKind.Unknown
+        if name.startswith("el "):
+            kind = WordKind.Male
+            name = name[3:]
+        elif name.startswith("la "):
+            kind = WordKind.Female
+            name = name[3:]
+        elif name.startswith("los "):
+            kind = WordKind.PluralMale
+            name = name[4:]
+        elif word.startswith('las '):
+            kind = WordKind.PluralFemale
+            name = name[4:]
+
+        return [name, kind, meaning_idx, attrib, attrib_idx]
 
 
 class WordKind(Enum):
@@ -353,11 +418,52 @@ w2kind = {
     'u': WordKind.Unknown
 }
 
+class DummyBank():
+
+    def __init__(self):
+        self.data = {
+            'words': {},
+        }
+
+
 class Testing(unittest.TestCase):
     def test_words(self):
-        words = Words({}, None)
-        words.add("el padre", ["father"])
+        bank = DummyBank()
+        from commands import CommandParser
+        parser = CommandParser(bank)
+        words = Words(bank)
+        r = parser.parse_command("el padre = father")
+        #[CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 0, None, 0, ["father"]],
+        assert words.count == 0
+        w = words.add_word(r[1], r[2], r[3], r[6])
         assert words.count == 1
+        w.delete()
+        assert words.count == 0
+
+        r = parser.parse_command("el padre = father")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        r = parser.parse_command("la madre = mother, mom")
+        w2 = words.add_word(r[1], r[2], r[3], r[6])
+        assert words.count == 2
+
+        w = words['padre']
+        assert w.meaning == 'father'
+        w = words['padre[1]']
+        assert w.meaning == 'father'
+
+        w.delete()
+        w2.delete()
+        assert words.count == 0
+        assert not w.exists
+        assert not w2.exists
+
+
+
+    def test_word_parse(self):
+        assert Word.parse("la madre") == ["madre", WordKind.Female, 0]
+        assert Word.parse("el padre") == ["padre", WordKind.Male, 0]
+        assert Word.parse("padre[1]") == ["padre", WordKind.Unknown, 1]
+        assert Word.parse("el padre[1]") == ["padre", WordKind.Male, 1]
 
     def test_word_kind_parse(self):
         assert WordKind.parse("v") == WordKind.Verb
@@ -367,21 +473,21 @@ class Testing(unittest.TestCase):
         assert WordKind.parse("unknown") == WordKind.Unknown
 
     def test_word_obj_name_parse(self):
-        assert WordObjName.parse_object_name("el padre") == ["el padre", 0, None, 0]
-        assert WordObjName.parse_object_name("el padre[1]") == ["el padre", 1, None, 0]
-        assert WordObjName.parse_object_name("el padre:images") == ["el padre", 0, WordAttribs.IMAGES, 0]
-        assert WordObjName.parse_object_name("el padre:images[1]") == ["el padre", 0, WordAttribs.IMAGES, 1]
-        assert WordObjName.parse_object_name("el padre[2]:images[1]") == ["el padre", 2, WordAttribs.IMAGES, 1]
+        assert WordObjName.parse_object_name("el padre") == ["padre", WordKind.Male, 0, None, 0]
+        assert WordObjName.parse_object_name("el padre[1]") == ["padre", WordKind.Male, 1, None, 0]
+        assert WordObjName.parse_object_name("el padre:images") == ["padre", WordKind.Male, 0, WordAttribs.IMAGES, 0]
+        assert WordObjName.parse_object_name("el padre:images[1]") == ["padre", WordKind.Male, 0, WordAttribs.IMAGES, 1]
+        assert WordObjName.parse_object_name("el padre[2]:images[1]") == ["padre", WordKind.Male, 2, WordAttribs.IMAGES, 1]
         try:
-            assert WordObjName.parse_object_name("el padre[2]:doesnotexist[1]") == ["el padre", 2, WordAttribs.IMAGES, 1]
+            assert WordObjName.parse_object_name("el padre[2]:doesnotexist[1]") == ["padre", WordKind.Male, 2, WordAttribs.IMAGES, 1]
         except InvalidWordObjName as e:
             assert e.message == 'Not a valid word attribute: doesnotexist in el padre[2]:doesnotexist[1]'
         try:
-            assert WordObjName.parse_object_name("el padre[2]:images[0]") == ["el padre", 2, WordAttribs.IMAGES, 0]
+            assert WordObjName.parse_object_name("el padre[2]:images[0]") == ["padre", WordKind.Male, 2, WordAttribs.IMAGES, 0]
         except InvalidWordObjName as e:
             assert e.message == 'Not a valid attribute index: 0 in el padre[2]:images[0]'
         try:
-            assert WordObjName.parse_object_name("el padre[0]:images") == ["el padre", 0, WordAttribs.IMAGES, 0]
+            assert WordObjName.parse_object_name("el padre[0]:images") == ["padre", WordKind.Male, 0, WordAttribs.IMAGES, 0]
         except InvalidWordObjName as e:
             assert e.message == 'Not a valid meaning index: 0 in el padre[0]:images'
 
@@ -390,6 +496,8 @@ if __name__ == 'main':
     test_suite = unittest.TestSuite()
     test_suite.addTest(Testing("test_word_kind_parse"))
     test_suite.addTest(Testing("test_word_obj_name_parse"))
+    test_suite.addTest(Testing("test_word_parse"))
+    test_suite.addTest(Testing("test_words"))
     runner = unittest.TextTestRunner()
     runner.run(test_suite)
 
