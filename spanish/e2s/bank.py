@@ -1,37 +1,58 @@
 import json
+import os.path
+from words import Words
+import unittest
 
 class WordBank():
+    MEMORY_FILE = '/proc/espanol/memory'
 
-    def __init__(self, path):
-        if path:
-            self.word_bank_path = path + '.json'
-            self.bank = self.load_json(self.word_bank_path)
+    def __init__(self, path = MEMORY_FILE):
+        if not path:
+            self.word_bank_path = WordBank.MEMORY_FILE
         else:
-            self.word_bank_path = ':memory'
-            self.bank = {'words': {}, 'tags': {}}
+            self.word_bank_path = path
 
-    @classmethod
-    def load_json(cls, input_file):
-        if input_file != ':memory':
-            try:
-                with open(input_file, 'r') as input_file:
-                    return json.load(input_file)
-            except:
-                print("Couldn't read the file:", input_file)
-        return {
-            'words': {},
-            'rwords': {},
-            'tags': {},
-            'p2p': {},
-            'rp2p': {},
-            'phrases': {},
-            'courses': {},
-        }
+        self.load(self.word_bank_path)
 
+    def load(self, path):
+        try:
+            with open(path, 'r') as input_file:
+                self.data = json.load(input_file)
+                self.path = path
+        except:
+            if path != WordBank.MEMORY_FILE:
+                print("Couldn't read the file:", path)
+            else:
+                self.path = WordBank.MEMORY_FILE
+            self.data = {
+                'words': {},
+                'rwords': {},
+                'tags': {},
+                'p2p': {},
+                'rp2p': {},
+                'phrases': {},
+                'courses': {},
+            }
+
+        self.words = Words(self)
+        self.name = os.path.basename(path)
 
     def save(self):
-        if self.word_bank_path != ':memory':
+        if self.path != WordBank.MEMORY_FILE:
             with open(self.word_bank_path, 'w') as output_file:
-                json.dump(self.bank, output_file, indent=2)
+                json.dump(self.data, output_file, indent=2)
 
+
+class Testing(unittest.TestCase):
+    def test_basics(self):
+        bank = WordBank()
+        assert bank.name == 'memory'
+        assert bank.words.count == 0
+
+
+if __name__ == 'main':
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(Testing("test_basics"))
+    runner = unittest.TextTestRunner()
+    runner.run(test_suite)
 

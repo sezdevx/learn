@@ -13,7 +13,23 @@ class WordTextAttribute():
     def assign(self, text):
         self.word.node[self.key] = text
 
-    def remove(self):
+    def update(self, text):
+        self.word.node[self.key] = text
+
+    @property
+    def value(self):
+        if self.word.exists:
+            if self.key in self.word.node:
+                return self.word.node[self.key]
+        return None
+
+    def append(self, text):
+        if self.key in self.word.node:
+            self.word.node[self.key] += text
+        else:
+            self.word.node[self.key] = text
+
+    def delete(self):
         del self.word.node[self.key]
 
 
@@ -36,22 +52,65 @@ class WordListAttribute():
         else:
             self.word.node[self.key] = [value]
 
+    def append(self, value):
+        if self.index != 0:
+            raise VocabError("Can not append to indexed attribute: " + str(self))
+        if isinstance(value, list):
+            if self.key in self.word.node:
+                self.word.node[self.key].extend(value)
+            else:
+                self.word.node[self.key] = value
+        else:
+            if self.key in self.word.node:
+                self.word.node[self.key].append(value)
+            else:
+                self.word.node[self.key] = [value]
+
     def __str__(self):
         if self.index == 0:
             return str(self.word) + str(self.attribute)
         else:
             return str(self.word) + str(self.attribute) + "[" + self.index + "]"
 
-    def remove(self):
+    @property
+    def value(self):
+        if self.word.exists:
+            if self.key in self.word.node:
+                return ','.join(self.word.node[self.key])
+        return None
+
+    def delete(self):
         if self.index == 0:
             del self.word.node[self.key]
         else:
             self.word.node[self.key].remove(self.index-1)
 
+class WordMeaningIterator():
+    def __init__(self, word):
+        if word.index != 0:
+            raise VocabError("Can not iterate indexed word: " + str(word))
+        self.word = word
+        self.current = 0
+        self.limit = len(self.word.meanings)
+
+    def __iter__(self):
+        self.current = 0
+        self.limit = len(self.word.meanings)
+        return self
+
+    def __next__(self):
+        if self.current < self.limit:
+            self.current+=1
+            return Word(self.word.name, self.word.kind, self.current, self.word.words, self.word.bank)
+        raise StopIteration
+
 class Word():
     @property
     def exists(self):
         return self.node != None
+
+    def __iter__(self):
+        return WordMeaningIterator(self)
 
     @classmethod
     def parse(cls, name):
@@ -195,16 +254,31 @@ class Word():
         elif self.kind != kind:
             raise VocabError("Mismatched kinds: " + str(self))
 
+    def __getitem__(self, idx):
+        if not self.node:
+            return None
+        if isinstance(idx, int):
+            if idx != 0:
+                raise VocabError("This word is already index: " + str(self))
+            if 0 < idx <= len(self.meanings):
+                return Word(self.name, self.kind, idx, self.words, self.bank)
+        elif isinstance(idx, str):
+            attrib = WordAttribs.parse(idx, idx)
+            return self.get_attribute(attrib, 0)
+        elif isinstance(idx, WordAttribs):
+            return self.get_attribute(idx, 0)
+        return None
+
     def get_attribute(self, attrib, attrib_index):
         if not attrib or not self.node:
             return None
         key = attrib.key
         a = self.node.get(key, None)
-        if not a:
-            return None
 
         if WordAttribs.is_list(attrib):
-            if 0 <= attrib_index <= len(a):
+            if attrib_index == 0:
+                return WordListAttribute(attrib, attrib_index, self)
+            elif a and 0 < attrib_index <= len(a):
                 return WordListAttribute(attrib, attrib_index, self)
             else:
                 raise InvalidWordObjName("Invalid index: " + attrib + " " + attrib_index + " for word " + str(self))
@@ -212,7 +286,33 @@ class Word():
             return WordTextAttribute(attrib, self)
 
 
+class WordIterator():
+    def __init__(self, words):
+        self.words = words
+        self.iter = iter(words.words)
+        self.current = 0
+        self.limit = len(self.words.words)
+
+    def __iter__(self):
+        self.current = 0
+        self.limit = len(self.words.words)
+        self.iter = iter(self.words.words)
+        return self
+
+    def __next__(self):
+        if self.current < self.limit:
+            self.current+=1
+            key = next(self.iter)
+            return self.words[key]
+        raise StopIteration
+
 class Words():
+
+    def __iter__(self):
+        return WordIterator(self)
+
+    def __len__(self):
+        return len(self.words)
 
     def __init__(self, bank):
         self.bank = bank
@@ -257,6 +357,14 @@ class WordAttribs(Enum):
     ANONYMS = 'anonyms'
     IMAGES = 'images'
     KEYWORD = 'keyword'
+
+    @classmethod
+    def parse(cls, attrib, message):
+        for a in WordAttribs:
+            if a.value.startswith(attrib):
+                return a
+        else:
+            raise InvalidWordObjName("Not a valid word attribute: " + attrib + " in "+ message)
 
     @property
     def key(self):
@@ -328,12 +436,7 @@ class WordObjName():
                 attrib = attrib[:idx]
 
         if attrib:
-            for a in WordAttribs:
-                if a.value.startswith(attrib):
-                    attrib = a
-                    break
-            else:
-                raise InvalidWordObjName("Not a valid word attribute: " + attrib + " in "+ word)
+            attrib = WordAttribs.parse(attrib, word)
 
         if attrib and not WordAttribs.is_list(attrib) and attrib_idx != 0:
             raise InvalidWordObjName("Not a list attribute: " + attrib + " in " + word)
@@ -427,6 +530,34 @@ class DummyBank():
 
 
 class Testing(unittest.TestCase):
+    def test_words_iterator(self):
+        bank = DummyBank()
+        words = Words(bank)
+
+        from commands import CommandParser
+        parser = CommandParser(bank)
+        r = parser.parse_command("el padre = father")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        r = parser.parse_command("el padre = priest")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        i = 0
+        meanings = ['father', 'priest']
+        for m in w:
+            assert m.meaning == meanings[i]
+            i+=1
+        assert i == 2
+
+        r = parser.parse_command("la madre = mother")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        i = 0
+        words2 = ['padre', 'madre']
+        meanings = ['father', 'mother']
+        for w in words:
+            assert str(w) == words2[i]
+            assert w.meaning == meanings[i]
+            i+=1
+        assert i == 2
+
     def test_words(self):
         bank = DummyBank()
         from commands import CommandParser
@@ -451,12 +582,28 @@ class Testing(unittest.TestCase):
         w = words['padre[1]']
         assert w.meaning == 'father'
 
+        w['images'].assign(['/path/to/images.img'])
+        assert w['images'].value == '/path/to/images.img'
+        w['images'].delete()
+        assert w['images'].value == None
+
+        w['im'].assign('/path/to/images.img')
+        assert w['images'].value == '/path/to/images.img'
+        w['images'].delete()
+        assert w['images'].value == None
+
+        w['key'].assign('parent')
+        assert w['key'].value == 'parent'
+        w['key'].update('new one')
+        assert w['key'].value == 'new one'
+        w['key'].delete()
+        assert w['key'].value == None
+
         w.delete()
         w2.delete()
         assert words.count == 0
         assert not w.exists
         assert not w2.exists
-
 
 
     def test_word_parse(self):
@@ -498,6 +645,7 @@ if __name__ == 'main':
     test_suite.addTest(Testing("test_word_obj_name_parse"))
     test_suite.addTest(Testing("test_word_parse"))
     test_suite.addTest(Testing("test_words"))
+    test_suite.addTest(Testing("test_words_iterator"))
     runner = unittest.TextTestRunner()
     runner.run(test_suite)
 

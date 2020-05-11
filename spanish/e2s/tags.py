@@ -84,6 +84,13 @@ class TagObjName():
 
         return [base_name, sub_name, word_idx, attrib, attrib_idx]
 
+class DummyBank():
+
+    def __init__(self):
+        self.data = {
+            'tags': {},
+        }
+
 
 class Testing(unittest.TestCase):
     def test_tag_obj_name_parse(self):
