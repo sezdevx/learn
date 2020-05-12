@@ -360,6 +360,7 @@ class Testing(unittest.TestCase):
             "#family-beginner el padre": [CommandKind.TAG_ASSIGN, "family", 'beginner', 0, None, 0, ["el padre"]],
             "#family-beginner[1] el padre": [CommandKind.TAG_ASSIGN, "family", 'beginner', 1, None, 0, ["el padre"]],
             "#family-beginner = el padre, la madre": [CommandKind.TAG_ASSIGN, "family", 'beginner', 0, None, 0, ["el padre", "la madre"]],
+            "#family-beginner += la madre": [CommandKind.TAG_APPEND, "family", 'beginner', 0, None, 0, ["la madre"]],
         }
         self.check(commands)
 

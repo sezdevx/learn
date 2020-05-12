@@ -41,7 +41,7 @@ class Tag():
                 for sub_tag in self.tags[self.name]:
                     for w in self.tags[self.name][sub_tag]:
                         word = Word(w, self.bank)
-                        if word.exists:
+                        if word.normalize:
                             if sub_tag == '*':
                                 word.remove_tag(self.name)
                             else:
@@ -51,7 +51,7 @@ class Tag():
             else:
                 for w in self.node['w']:
                     word = Word(w, self.bank)
-                    if word.exists:
+                    if word.normalize:
                         if self.sub_tag == '*':
                             word.remove_tag(self.name)
                         else:

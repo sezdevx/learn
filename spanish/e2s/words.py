@@ -3,6 +3,7 @@ from bank_utils import VocabError
 import unittest
 import re
 from spanish import Spanish
+import datetime
 
 class WordTextAttribute():
     def __init__(self, attrib, word):
@@ -11,9 +12,6 @@ class WordTextAttribute():
         self.key = attrib.key
 
     def assign(self, text):
-        self.word.node[self.key] = text
-
-    def update(self, text):
         self.word.node[self.key] = text
 
     @property
@@ -47,8 +45,7 @@ class WordListAttribute():
             else:
                 raise VocabError("Can not assign a list to index: " + str(self))
         elif self.index != 0:
-            node = self.word.node[self.key]
-            node[self.index-1] = value
+            self.word.node[self.key][self.index-1] = value
         else:
             self.word.node[self.key] = [value]
 
@@ -108,6 +105,30 @@ class Word():
     @property
     def exists(self):
         return self.node != None
+
+    @property
+    def since_creation(self):
+        d = datetime.datetime.fromtimestamp(self.node['tc'])
+        n = datetime.datetime.utcnow()
+        return (n - d).days
+
+    @property
+    def since_last_access(self):
+        d = datetime.datetime.fromtimestamp(self.node['tl'])
+        n = datetime.datetime.utcnow()
+        return (n - d).days
+
+    @property
+    def tags(self):
+        return self.node['t'][:]
+
+    def remove_tag(self, tag):
+        if self.node:
+            self.node['t'].remove(tag)
+
+    def add_tag(self, tag):
+        if self.node:
+            self.node['t'].append(tag)
 
     def __iter__(self):
         return WordMeaningIterator(self)
@@ -181,16 +202,23 @@ class Word():
         else:
             return ''
 
-    def update(self, meaning):
+    def assign(self, meaning):
         if self.index == 0:
             raise VocabError("Can not update a word without an index: " + str(self))
-        self.node['m'] = meaning
+        if isinstance(meaning, list):
+            self.node['m'] = meaning
+        else:
+            self.node['m'] = [meaning]
 
     def create_word_node(self, meaning):
+        t = datetime.datetime.utcnow().timestamp()
         return {
             'm': meaning,
             's': [],
             'a': [],
+            'tc': t,
+            'tl': t,
+            't': []
         }
 
     def create(self, meaning):
@@ -258,8 +286,8 @@ class Word():
         if not self.node:
             return None
         if isinstance(idx, int):
-            if idx != 0:
-                raise VocabError("This word is already index: " + str(self))
+            if self.index != 0:
+                raise VocabError("This word is already indexed: " + str(self))
             if 0 < idx <= len(self.meanings):
                 return Word(self.name, self.kind, idx, self.words, self.bank)
         elif isinstance(idx, str):
@@ -318,8 +346,57 @@ class Words():
         self.bank = bank
         self.words = bank.data['words']
 
+    def normalize(self, word):
+        name, mkind, meaning_idx, attrib, attrib_idx = tuple(WordObjName.parse_object_name(word))
+        word_key = Spanish.normalize(name)
+        word_node = self.words.get(word_key, None)
+        if not word_node:
+            word_node = self.words.get(name, None)
+            if not word_node:
+                return None
+        elif word_node[0] != name:
+            if word_key != name:
+                word_node = self.words.get(name, None)
+                if not word_node:
+                    return None
+
+        meanings = word_node[2]
+
+        kind = WordKind.parse(word_node[1])
+        if 0 < meaning_idx <= len(meanings):
+            if meanings[meaning_idx-1].get('wk', None):
+                kind =  WordKind.parse(meanings[meaning_idx-1]['wk'])
+            real_index = meaning_idx - 1
+        else:
+            if meaning_idx != 0:
+                raise VocabError("Invalid index: " + word)
+            real_index = 0
+
+        if kind.unknown:
+            pass
+        elif not mkind.unknown and kind != mkind:
+            raise VocabError("Mismatched kinds: " + word)
+        node = meanings[real_index]
+        if not attrib:
+            if meaning_idx == 0:
+                meaning_idx = 1
+            return name + '[' + str(meaning_idx) + ']'
+        attrib_key = WordAttribs.get_json_key(attrib)
+        if not attrib_key in node:
+            return None
+        node = node[attrib_key]
+        if meaning_idx == 0:
+            meaning_idx = 1
+        if attrib_idx == 0:
+            attrib_idx = 1
+        if not (0 < attrib_idx <= len(node)):
+            return None
+        return name + '[' + str(meaning_idx) + ']:' + WordAttribs.get_json_key(attrib) + '[' + str(attrib_idx) + ']'
+
+
+
     def __getitem__(self, word):
-        name, kind, index, attrib, attrib_index = WordObjName.parse_object_name(word)
+        name, kind, index, attrib, attrib_index = tuple(WordObjName.parse_object_name(word))
         if not attrib:
             w = Word(name, kind, index, self.words, self.bank)
             if w.exists:
@@ -330,18 +407,14 @@ class Words():
                 return w.get_attribute(attrib, attrib_index)
         return None
 
-    @property
-    def count(self):
-        return len(self.words)
+    def del_word(self, word, kind, index):
+        w = Word(word, kind, index, self.words, self.bank)
+        w.delete()
 
     def add_word(self, word, kind, index, meaning):
         w = Word(word, kind, index, self.words, self.bank)
         w.create(meaning)
         return w
-
-    def remove_word(self, word, kind, index):
-        w = Word(word, kind, index, self.words, self.bank)
-        w.delete()
 
 
 class InvalidWordObjName(VocabError):
@@ -478,6 +551,7 @@ class WordKind(Enum):
         global w2kind
         return w2kind.get(str.strip().lower(), None)
 
+    @property
     def unknown(self):
         return self.value == 'u'
 
@@ -530,6 +604,59 @@ class DummyBank():
 
 
 class Testing(unittest.TestCase):
+    def test_word_index(self):
+        bank = DummyBank()
+        words = Words(bank)
+
+        from commands import CommandParser
+        parser = CommandParser(bank)
+        assert not words.normalize("el padre")
+        r = parser.parse_command("el padre = father")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        r = parser.parse_command("el padre = priest")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+
+        w = words["padre"]
+        assert w[1].meaning == 'father'
+        assert w[2].meaning == 'priest'
+        w[1].assign(['father', 'dad'])
+        assert w[1].meaning == 'father, dad'
+        w[1].delete()
+        assert w[1].meaning == 'priest'
+
+        w[1]["keyword"].assign("Religion")
+        assert w[1]["keyword"].value == "Religion"
+
+    def test_words_exists(self):
+        bank = DummyBank()
+        words = Words(bank)
+
+        from commands import CommandParser
+        parser = CommandParser(bank)
+        assert not words.normalize("el padre")
+        r = parser.parse_command("el padre = father")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        r = parser.parse_command("la madre = mother")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        r = parser.parse_command("el hermano = brother")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        r = parser.parse_command("la hermana = sister")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        r = parser.parse_command("el abuelo = grandfather")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        assert words.normalize("el padre")
+        assert words.normalize("padre")
+        assert words.normalize("padre[1]")
+        try:
+            assert words.normalize("el madre")
+        except VocabError as e:
+            assert e.message == 'Mismatched kinds: el madre'
+        assert words.normalize("madre")
+        assert words.normalize("la madre")
+        assert words.normalize("la madre[1]")
+        assert words["madre"].since_creation == 0
+        assert words["madre"].since_last_access == 0
+
     def test_words_iterator(self):
         bank = DummyBank()
         words = Words(bank)
@@ -565,17 +692,17 @@ class Testing(unittest.TestCase):
         words = Words(bank)
         r = parser.parse_command("el padre = father")
         #[CommandKind.WORD_ASSIGN, WordKind.Male, "padre", 0, None, 0, ["father"]],
-        assert words.count == 0
+        assert len(words) == 0
         w = words.add_word(r[1], r[2], r[3], r[6])
-        assert words.count == 1
+        assert len(words) == 1
         w.delete()
-        assert words.count == 0
+        assert len(words) == 0
 
         r = parser.parse_command("el padre = father")
         w = words.add_word(r[1], r[2], r[3], r[6])
         r = parser.parse_command("la madre = mother, mom")
         w2 = words.add_word(r[1], r[2], r[3], r[6])
-        assert words.count == 2
+        assert len(words) == 2
 
         w = words['padre']
         assert w.meaning == 'father'
@@ -594,14 +721,14 @@ class Testing(unittest.TestCase):
 
         w['key'].assign('parent')
         assert w['key'].value == 'parent'
-        w['key'].update('new one')
+        w['key'].assign('new one')
         assert w['key'].value == 'new one'
         w['key'].delete()
         assert w['key'].value == None
 
         w.delete()
         w2.delete()
-        assert words.count == 0
+        assert len(words) == 0
         assert not w.exists
         assert not w2.exists
 
@@ -645,7 +772,9 @@ if __name__ == 'main':
     test_suite.addTest(Testing("test_word_obj_name_parse"))
     test_suite.addTest(Testing("test_word_parse"))
     test_suite.addTest(Testing("test_words"))
+    test_suite.addTest(Testing("test_words_exists"))
     test_suite.addTest(Testing("test_words_iterator"))
+    test_suite.addTest(Testing("test_word_index"))
     runner = unittest.TextTestRunner()
     runner.run(test_suite)
 

@@ -56,7 +56,7 @@ def ls_command(bank, options, name):
                     i = 0
                     for w in words:
                         word = Word(w, bank)
-                        if not word.exists:
+                        if not word.normalize:
                             course.remove_word(w.simple_name)
                         else:
                             print(w)
@@ -126,7 +126,7 @@ def print_phrases(phrases, options):
 def print_words(words, options):
     x = find_max_width(words)
     for w in words:
-        if w.exists:
+        if w.normalize:
             m = ", ".join(w.get_meanings())
             print(f"{str(w):>{x}}: {m}")
             if 's' in options:
@@ -149,7 +149,7 @@ def print_words(words, options):
 def print_reverse_words(rwords, options):
     x = find_max_width(rwords)
     for w in rwords:
-        if w.exists:
+        if w.normalize:
             print(f"{str(w):>{x}}: {w.get_meanings()[0]}")
         else:
             print(f"{str(w):>{x}}: NOT FOUND")

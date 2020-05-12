@@ -3,6 +3,258 @@ from bank_utils import VocabError
 import unittest
 import re
 
+class TagTextAttribute():
+    def __init__(self, attrib, tag):
+        self.tag = tag
+        self.attrib = attrib
+        self.key = attrib.key
+
+    def assign(self, text):
+        self.tag.node[self.key] = text
+
+    @property
+    def value(self):
+        if self.tag.exists:
+            if self.key in self.tag.node:
+                return self.tag.node[self.key]
+        return None
+
+    def append(self, text):
+        if self.key in self.tag.node:
+            self.tag.node[self.key] += text
+        else:
+            self.tag.node[self.key] = text
+
+    def delete(self):
+        del self.tag.node[self.key]
+
+
+class TagListAttribute():
+    def __init__(self, attrib, attribute_idx, tag):
+        self.tag = tag
+        self.attribute = attrib
+        self.index = attribute_idx
+        self.key = attrib.key
+
+    def __getitem__(self, item):
+        if self.index != 0:
+            raise VocabError("Can not index to an already indexed attribute")
+        if not isinstance(item, int):
+            raise VocabError("Must pass an integer as an index: " + str(item))
+        if self.key in self.tag.node:
+            if 0 < item <= len(self.tag.node[self.key]):
+                return self.tag.node[self.key][item-1]
+
+        raise VocabError("Out of bound index " + str(item))
+
+    def assign(self, value, idx = -1):
+        if idx == -1:
+            if isinstance(value, list):
+                if self.index == 0:
+                    self.tag.node[self.key] = value
+                else:
+                    raise VocabError("Can not assign a list to index: " + str(self))
+            elif self.index != 0:
+                self.tag.node[self.key][self.index-1] = value
+            else:
+                self.tag.node[self.key] = [value]
+            return
+        elif self.index != 0:
+            raise VocabError("Can not assign to an already indexed attribute")
+        if 0 < idx <= len(self.tag.node[self.key]):
+            if isinstance(value, list):
+                if len(value) > 1:
+                    raise VocabError("Can not assign more than one to an element of an attribute: " + str(self))
+                self.tag.node[self.key][idx-1] = value[0]
+            else:
+                self.tag.node[self.key][idx-1] = value
+        else:
+            raise VocabError("Out of bounds index " + str(idx))
+
+    def append(self, value):
+        if self.index != 0:
+            raise VocabError("Can not append to indexed attribute: " + str(self))
+        if isinstance(value, list):
+            if self.key in self.tag.node:
+                self.tag.node[self.key].extend(value)
+            else:
+                self.tag.node[self.key] = value
+        else:
+            if self.key in self.tag.node:
+                self.tag.node[self.key].append(value)
+            else:
+                self.tag.node[self.key] = [value]
+
+    def __str__(self):
+        if self.index == 0:
+            return str(self.tag) + str(self.attribute)
+        else:
+            return str(self.tag) + str(self.attribute) + "[" + self.index + "]"
+
+    @property
+    def value(self):
+        if self.tag.exists:
+            if self.key in self.tag.node:
+                return ','.join(self.tag.node[self.key])
+        return None
+
+    def delete(self):
+        if self.index == 0:
+            del self.tag.node[self.key]
+        else:
+            self.tag.node[self.key].remove(self.index-1)
+
+class Tag():
+    @property
+    def exists(self):
+        return self.node != None
+
+    def __getitem__(self, item):
+        if not self.node:
+            return None
+        if isinstance(item, int):
+            if 0 < item <= len(self.node['w']):
+                return self.node['w'][item-1]
+            raise VocabError("Not a valid index: " + str(item))
+        elif isinstance(item, str):
+            attrib = TagAttribs.parse(item, item)
+            return self.get_attribute(attrib, 0)
+        elif isinstance(item, TagAttribs):
+            return self.get_attribute(item, 0)
+
+    def get_attribute(self, attrib, attrib_index):
+        if not attrib or not self.node:
+            return None
+        key = attrib.key
+        a = self.node.get(key, None)
+
+        if TagAttribs.is_list(attrib):
+            if attrib_index == 0:
+                return TagListAttribute(attrib, attrib_index, self)
+            elif a and 0 < attrib_index <= len(a):
+                return TagListAttribute(attrib, attrib_index, self)
+            else:
+                raise InvalidTagObjName("Invalid index: " + attrib + " " + attrib_index + " for word " + str(self))
+        else:
+            return TagTextAttribute(attrib, self)
+
+    def __init__(self, tag, sub_tag, tags, bank):
+        self.tag = tag
+        self.sub_tag = sub_tag
+        self.bank = bank
+        self.tags = tags
+        if sub_tag == '*':
+            self.normalized = self.tag
+        else:
+            self.normalized = self.tag + '-' + self.sub_tag
+
+        self.node = None
+        self.parent = None
+        if tag in self.tags:
+            tag_node = self.tags[tag]
+            self.parent = tag_node
+            if sub_tag in tag_node:
+                self.node = tag_node[sub_tag]
+
+    @property
+    def words(self):
+        if self.node:
+            return self.node['w'][:]
+        return None
+
+    def create(self):
+        if not self.node:
+            self.parent = {}
+            self.tags[self.tag] = self.parent
+            self.node = {'w':[]}
+            self.parent[self.sub_tag] = self.node
+
+    def delete(self):
+        if not self.exists:
+            return
+
+        if self.sub_tag == '*':
+            for sub_tag in self.parent:
+                for w in self.parent[sub_tag]['w']:
+                    word = self.bank.words[w]
+                    if sub_tag == '*':
+                        word.remove_tag(self.tag)
+                    else:
+                        word.remove_tag(self.tag + '-' + sub_tag)
+            del self.tags[self.tag]
+        else:
+            self.clear()
+            del self.parent[self.sub_tag]
+
+    def clear(self):
+        if not self.exists:
+            return
+
+        for w in self.node['w']:
+            word = self.bank.words[w]
+            word.remove_tag(self.normalized)
+
+        self.node['w'] = []
+
+    def add_word(self, word):
+        if not self.exists:
+            raise VocabError("Can not add a word to a non-existing tag")
+        normalized = self.bank.words.normalize(word)
+        if normalized:
+            if word not in self.node['w']:
+                self.node['w'].append(normalized)
+                self.bank.words[normalized].add_tag(self.normalized)
+        else:
+            raise VocabError("No such word: " + word)
+
+    def add_words(self, words):
+        for w in words:
+            self.add_word(w)
+
+    def remove_word(self, word):
+        if not self.exists:
+            return
+        normalized = self.bank.words.normalize(word)
+        self.node['w'].remove(normalized)
+        self.bank.words[normalized].remove_tag(self.normalized)
+
+
+class Tags():
+    def __len__(self):
+        return len(self.tags)
+
+    def __init__(self, bank):
+        self.bank = bank
+        self.tags = bank.data['tags']
+
+    def __getitem__(self, item):
+        if not item.startswith('#'):
+            item = '#' + item
+        tag, sub_tag, word_idx, attrib, attrib_idx = TagObjName.parse_object_name(item)
+        t = Tag(tag, sub_tag, self.tags, self.bank)
+        if not attrib:
+            if word_idx == 0:
+                return t
+            words = t.words
+            if words and 0 < word_idx <= len(words):
+                return words[word_idx-1]
+            raise VocabError("Invalid word index: " + item)
+        else:
+            w = Tag(tag, sub_tag, self.tags, self.bank)
+            if w.exists:
+                return w.get_attribute(attrib, attrib_idx)
+        return None
+
+    def add_tag(self, tag, sub_tag):
+        t = Tag(tag, sub_tag, self.tags, self.bank)
+        t.create()
+        return t
+
+    def del_tag(self, tag, sub_tag):
+        t = Tag(tag, sub_tag, self.tags, self.bank)
+        t.delete()
+
+
 class InvalidTagObjName(VocabError):
     def __init__(self, message = ""):
         self.message = message
@@ -12,6 +264,29 @@ class InvalidTagObjName(VocabError):
 
 class TagAttribs(Enum):
     IMAGES = 'images'
+    KEYWORD = 'keyword'
+
+    @classmethod
+    def parse(cls, attrib, message):
+        attrib = attrib.lower()
+        for a in TagAttribs:
+            if a.value.startswith(attrib):
+                return a
+        else:
+            raise InvalidTagObjName("Not a valid word attribute: " + attrib + " in "+ message)
+
+    @property
+    def key(self):
+        return TagAttribs.get_json_key(self)
+
+    @classmethod
+    def get_json_key(cls, attrib):
+        if attrib == TagAttribs.IMAGES:
+            return 'i'
+        elif attrib == TagAttribs.KEYWORD:
+            return 'k'
+        else:
+            return None
 
     @classmethod
     def is_list(cls, attrib):
@@ -89,10 +364,54 @@ class DummyBank():
     def __init__(self):
         self.data = {
             'tags': {},
+            'words': {}
         }
 
 
 class Testing(unittest.TestCase):
+    def test_tags(self):
+        bank = DummyBank()
+        from commands import CommandParser
+        from words import Words
+        parser = CommandParser(bank)
+        tags = Tags(bank)
+        words = Words(bank)
+        bank.words = words
+        bank.tags = tags
+        r = parser.parse_command("el padre = father")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        r = parser.parse_command("la madre = mother")
+        w = words.add_word(r[1], r[2], r[3], r[6])
+        r = parser.parse_command("#family padre, madre")
+        t = tags.add_tag(r[1], r[2])
+        assert len(tags) == 1
+        t.add_words(r[6])
+        assert t.words == ['padre[1]', 'madre[1]']
+        t.remove_word('la madre')
+        assert t.words == ['padre[1]']
+        t.remove_word('padre')
+        assert t.words == []
+
+        t.add_word("el padre")
+        t.add_word("la madre")
+        assert tags["family[1]"] == 'padre[1]'
+        assert tags["family[2]"] == 'madre[1]'
+        assert tags["family"][1] == 'padre[1]'
+        assert tags["family"][2] == 'madre[1]'
+
+        r = parser.parse_command("#family:IMAGES = '/path/to/image.jpg'")
+        t = tags[r[1]+'-'+r[2]]
+        t[r[4]].assign(r[6])
+        assert t["IMAGES"].value == '/path/to/image.jpg'
+        assert t["IMAGES"][1] == '/path/to/image.jpg'
+
+        r = parser.parse_command("#family:IMAGES[1] = '/path/to/image2.jpg'")
+        t = tags[r[1]+'-'+r[2]]
+        t[r[4]].assign(r[6], r[5])
+        assert t["IMAGES"].value == '/path/to/image2.jpg'
+        assert t["IMAGES"][1] == '/path/to/image2.jpg'
+
+
     def test_tag_obj_name_parse(self):
         assert TagObjName.parse_object_name("#family") == ["family", '*', 0, None, 0]
         assert TagObjName.parse_object_name("#family-beginner") == ["family", 'beginner', 0, None, 0]
@@ -105,10 +424,10 @@ class Testing(unittest.TestCase):
             assert e.message == "Can not provide word index and an attribute in this expression: #family-beginner[1]:images"
 
 
-
 if __name__ == 'main':
     test_suite = unittest.TestSuite()
     test_suite.addTest(Testing("test_tag_obj_name_parse"))
+    test_suite.addTest(Testing("test_tags"))
     runner = unittest.TextTestRunner()
     runner.run(test_suite)
 

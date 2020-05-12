@@ -28,9 +28,12 @@ class WordBank():
                 'words': {},
                 'rwords': {},
                 'tags': {},
-                'p2p': {},
-                'rp2p': {},
-                'phrases': {},
+                'phrases': {
+                    'p2r': {},
+                    'r2p' : {},
+                    'ids' : {},
+                    'last_id': 0
+                },
                 'courses': {},
             }
 
@@ -47,7 +50,7 @@ class Testing(unittest.TestCase):
     def test_basics(self):
         bank = WordBank()
         assert bank.name == 'memory'
-        assert bank.words.count == 0
+        assert len(bank.words) == 0
 
 
 if __name__ == 'main':

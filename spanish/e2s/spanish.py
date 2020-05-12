@@ -87,7 +87,7 @@ class Spanish():
             if match:
                 groups = match.groups()
                 replacement = rule[1]
-                if re.match('\|', replacement):
+                if re.match(r'|', replacement):
                     for k in range(1, len(groups)):
                         replacement = replacement.replace('|' + str(k),
                                                           cls.str_replace(groups[k - 1], 'ÁÉÍÓÚáéíóú', 'AEIOUaeiou'))

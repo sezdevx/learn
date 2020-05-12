@@ -87,7 +87,7 @@ class WordBank():
         r = []
         for w in words:
             word = Word(w, self)
-            if word.exists:
+            if word.normalize:
                 if self.pwd:
                     self.pwd.remove_word(word.simple_name)
                 meanings_root = self.words[word.word_key][1]
@@ -118,7 +118,7 @@ class WordBank():
 
     def delete_tag(self, tag):
         t = Tag(tag, self)
-        if not t.exists:
+        if not t.normalize:
             return False
         t.delete()
         return True
@@ -166,11 +166,11 @@ class WordBank():
             for a in r:
                 if a.startswith('#'):
                     tag = Tag(a[1:], self)
-                    if tag.exists:
+                    if tag.normalize:
                         self.pwd.add_tag(tag.full_name)
                 else:
                     word = Word(a, self)
-                    if word.exists:
+                    if word.normalize:
                         self.pwd.add_word(word.simple_name)
 
         return True
@@ -218,7 +218,7 @@ class WordBank():
         word = Word(cmd[2], self)
         self.__correct_word_kind(word, meanings)
 
-        if word.exists:
+        if word.normalize:
             word.append_meanings(meanings)
             self.add_to_history(word)
             if self.pwd:
@@ -233,7 +233,7 @@ class WordBank():
         word = Word(cmd[2], self)
         self.__correct_word_kind(word, meanings)
 
-        if word.exists:
+        if word.normalize:
             return word.remove_meanings(meanings)
 
         return [cmd[2]]
@@ -243,7 +243,7 @@ class WordBank():
         keyword = cmd[3]
         word = Word(cmd[2], self)
 
-        if word.exists:
+        if word.normalize:
             word.attr_assign(keyword, values)
             return True
 
@@ -254,7 +254,7 @@ class WordBank():
         keyword = cmd[3]
         word = Word(cmd[2], self)
 
-        if word.exists:
+        if word.normalize:
             return word.attr_append(keyword, values)
 
         return False
@@ -264,7 +264,7 @@ class WordBank():
         keyword = cmd[3]
         word = Word(cmd[2], self)
 
-        if word.exists:
+        if word.normalize:
             return word.attr_remove(keyword, values)
 
         return ['']
@@ -307,11 +307,11 @@ class WordBank():
     def tag_append(self, cmd):
         tag = Tag(cmd[2], self)
         r = []
-        if tag.exists:
+        if tag.normalize:
             words = cmd[3]
             for w in words:
                 word = Word(w, self)
-                if word.exists:
+                if word.normalize:
                     word.add_tag(tag.full_name)
                     tag.add_word(word.simple_name)
                 else:
@@ -321,11 +321,11 @@ class WordBank():
     def tag_remove(self, cmd):
         tag = Tag(cmd[2], self)
         r = []
-        if tag.exists:
+        if tag.normalize:
             words = cmd[3]
             for w in words:
                 word = Word(w, self)
-                if word.exists:
+                if word.normalize:
                     word.remove_tag(tag.full_name)
                     tag.remove_word(word.simple_name)
                 else:
@@ -339,7 +339,7 @@ class WordBank():
             if len(self.get_history()) == 0:
                 return []
 
-        if tag.exists:
+        if tag.normalize:
             tag.delete()
         tag.create()
         r = []
@@ -347,7 +347,7 @@ class WordBank():
             history = self.get_history()
             for w in history:
                 w.find()
-                if w.exists:
+                if w.normalize:
                     w.add_tag(tag.full_name)
                     tag.add_word(w.simple_name)
                 else:
@@ -356,7 +356,7 @@ class WordBank():
         else:
             for w in words:
                 word = Word(w, self)
-                if word.exists:
+                if word.normalize:
                     word.add_tag(tag.full_name)
                     tag.add_word(word.simple_name)
                 else:
@@ -369,7 +369,7 @@ class WordBank():
 
     def tag_list(self, tag_name):
         tag = Tag(tag_name, self)
-        if tag.exists:
+        if tag.normalize:
             return [Word(w, self) for w in tag.words]
         return []
 
@@ -434,7 +434,7 @@ class WordBank():
         if words:
             for w in words:
                 word = Word(w, self)
-                if word.exists:
+                if word.normalize:
                     word.remove_phrase(source_id)
 
         del self.p2p[source_id]
@@ -460,15 +460,15 @@ class WordBank():
             if w != original_words[i]: # just to save time
                 # we will try the original word first
                 w = Word(original_words[i], self)
-                if w.exists:
+                if w.normalize:
                     ws.append(w)
                 else:
                     w = Word(words[i], self)
-                    if w.exists:
+                    if w.normalize:
                         ws.append(w)
             else:
                 w = Word(w, self)
-                if w.exists:
+                if w.normalize:
                     ws.append(w)
             i += 1
 
