@@ -254,6 +254,8 @@ class Word():
                 self.node['m'].remove(m)
         else:
             self.node['m'].remove(meaning)
+        if len(self.node['m']) == 0:
+            self.delete()
 
     def append_meaning(self, meaning):
         if isinstance(meaning, list):
