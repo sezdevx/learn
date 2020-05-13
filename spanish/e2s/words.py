@@ -21,7 +21,15 @@ class WordTextAttribute():
                 return self.word.node[self.key]
         return None
 
+    def remove(self, text):
+        if self.word.node[self.key] == text:
+            del self.word.node[self.key]
+
     def append(self, text):
+        if isinstance(text, list):
+            if len(text) != 1:
+                raise VocabError("Can not append more than one value: " + ','.join(text))
+            text = text[0]
         if self.key in self.word.node:
             self.word.node[self.key] += text
         else:
@@ -37,6 +45,17 @@ class WordListAttribute():
         self.attribute = attrib
         self.index = attribute_idx
         self.key = attrib.key
+
+    def __getitem__(self, item):
+        if self.index != 0:
+            raise VocabError("Can not index into an already indexed attribute")
+
+        if isinstance(item, int):
+            if self.key in self.word.node and 0 < item <= len(self.word.node[self.key]):
+                return self.word.node[self.key][item-1]
+
+        raise VocabError("Out of bounds index: " + str(item))
+
 
     def assign(self, value):
         if isinstance(value, list):
@@ -62,6 +81,17 @@ class WordListAttribute():
                 self.word.node[self.key].append(value)
             else:
                 self.word.node[self.key] = [value]
+
+    def remove(self, value):
+        if self.index != 0:
+            raise VocabError("Can not append to indexed attribute: " + str(self))
+        if isinstance(value, list):
+            if self.key in self.word.node:
+                for v in value:
+                    self.word.node[self.key].remove(v)
+        else:
+            if self.key in self.word.node:
+                self.word.node[self.key].remove(value)
 
     def __str__(self):
         if self.index == 0:
@@ -98,13 +128,17 @@ class WordMeaningIterator():
     def __next__(self):
         if self.current < self.limit:
             self.current+=1
-            return Word(self.word.name, self.word.kind, self.current, self.word.words, self.word.bank)
+            return Word(self.word.name, WordKind.Unknown, self.current, self.word.words, self.word.bank)
         raise StopIteration
 
 class Word():
     @property
     def exists(self):
         return self.node != None
+
+    @property
+    def meaning_count(self):
+        return len(self.meanings)
 
     @property
     def since_creation(self):
@@ -132,6 +166,10 @@ class Word():
 
     def __iter__(self):
         return WordMeaningIterator(self)
+
+    @property
+    def pretty_name(self):
+        return WordKind.get_prefix(self.kind) + self.name
 
     @classmethod
     def parse(cls, name):
@@ -163,7 +201,7 @@ class Word():
 
         return [word, kind, index]
 
-    def __init__(self, word, kind, index, words, bank):
+    def __init__(self, word, kind, index, words, bank, throw = True):
         self.kind = kind
         self.words = words
         self.bank = bank
@@ -175,7 +213,7 @@ class Word():
         self.meanings = []
         self.real_index = -1
         self.node = None
-        self.find()
+        self.find(throw)
         if self.real_index != -1:
             self.node = self.meanings[self.real_index]
 
@@ -202,13 +240,27 @@ class Word():
         else:
             return ''
 
-    def assign(self, meaning):
+    def assign_meaning(self, meaning):
         if self.index == 0:
             raise VocabError("Can not update a word without an index: " + str(self))
         if isinstance(meaning, list):
             self.node['m'] = meaning
         else:
             self.node['m'] = [meaning]
+
+    def remove_meaning(self, meaning):
+        if isinstance(meaning, list):
+            for m in meaning:
+                self.node['m'].remove(m)
+        else:
+            self.node['m'].remove(meaning)
+
+    def append_meaning(self, meaning):
+        if isinstance(meaning, list):
+            self.node['m'].extend(meaning)
+        else:
+            self.node['m'].append(meaning)
+
 
     def create_word_node(self, meaning):
         t = datetime.datetime.utcnow().timestamp()
@@ -242,13 +294,17 @@ class Word():
                     self.words[self.word_key] = word_node
                 self.word_key = self.name
 
+        kind = WordKind.parse(word_node[1])
         self.meanings = word_node[2]
         self.node = self.create_word_node(meaning)
+        if kind != self.kind:
+            self.node['wk'] = self.kind.value
         self.meanings.append(self.node)
         self.real_index = len(self.meanings) - 1
 
 
-    def find(self):
+
+    def find(self, throw):
         word_node = self.words.get(self.word_key, None)
         if not word_node:
             # in case the other word is deleted
@@ -279,8 +335,8 @@ class Word():
 
         if self.kind.unknown:
             self.kind = kind
-        elif self.kind != kind:
-            raise VocabError("Mismatched kinds: " + str(self))
+        elif self.kind != kind and throw:
+            raise VocabError("Mismatched kinds: " + str(self) + ": " + self.kind.value + " vs " + kind.value)
 
     def __getitem__(self, idx):
         if not self.node:
@@ -289,7 +345,7 @@ class Word():
             if self.index != 0:
                 raise VocabError("This word is already indexed: " + str(self))
             if 0 < idx <= len(self.meanings):
-                return Word(self.name, self.kind, idx, self.words, self.bank)
+                return Word(self.name, WordKind.Unknown, idx, self.words, self.bank)
         elif isinstance(idx, str):
             attrib = WordAttribs.parse(idx, idx)
             return self.get_attribute(attrib, 0)
@@ -408,11 +464,11 @@ class Words():
         return None
 
     def del_word(self, word, kind, index):
-        w = Word(word, kind, index, self.words, self.bank)
+        w = Word(word, kind, index, self.words, self.bank, False)
         w.delete()
 
     def add_word(self, word, kind, index, meaning):
-        w = Word(word, kind, index, self.words, self.bank)
+        w = Word(word, kind, index, self.words, self.bank, False)
         w.create(meaning)
         return w
 
@@ -547,6 +603,33 @@ class WordKind(Enum):
     Unknown = "u"
 
     @classmethod
+    def get_prefix(cls, kind):
+        if kind == WordKind.Male:
+            return "el "
+        elif kind == WordKind.Female:
+            return "la "
+        elif kind == WordKind.PluralFemale:
+            return "las "
+        elif kind == WordKind.PluralMale:
+            return "los "
+        elif kind == WordKind.Verb:
+            return "(v) "
+        elif kind == WordKind.PronominalVerb:
+            return "(pv) "
+        elif kind == WordKind.Adjective:
+            return "(adj) "
+        elif kind == WordKind.Pronoun:
+            return "(pro) "
+        elif kind == WordKind.Interjection:
+            return "(inj) "
+        elif kind == WordKind.Conjuction:
+            return "(coj) "
+        elif kind == WordKind.Adverb:
+            return "(adv) "
+        else:
+            return ""
+
+    @classmethod
     def parse(cls, str):
         global w2kind
         return w2kind.get(str.strip().lower(), None)
@@ -619,7 +702,7 @@ class Testing(unittest.TestCase):
         w = words["padre"]
         assert w[1].meaning == 'father'
         assert w[2].meaning == 'priest'
-        w[1].assign(['father', 'dad'])
+        w[1].assign_meaning(['father', 'dad'])
         assert w[1].meaning == 'father, dad'
         w[1].delete()
         assert w[1].meaning == 'priest'
@@ -716,6 +799,7 @@ class Testing(unittest.TestCase):
 
         w['im'].assign('/path/to/images.img')
         assert w['images'].value == '/path/to/images.img'
+        assert w['images'][1] == '/path/to/images.img'
         w['images'].delete()
         assert w['images'].value == None
 

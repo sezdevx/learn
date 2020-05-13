@@ -20,6 +20,10 @@ class TagTextAttribute():
         return None
 
     def append(self, text):
+        if isinstance(text, list):
+            if len(text) != 1:
+                raise VocabError("Can not append more than one value: " + ','.join(text))
+            text = text[0]
         if self.key in self.tag.node:
             self.tag.node[self.key] += text
         else:

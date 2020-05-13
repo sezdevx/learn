@@ -41,6 +41,7 @@ class CommandKind(Enum):
     COURSE_CHANGE = 'course-change'
 
     SAVE = 'save'
+    LOAD = 'load'
     EXIT = 'exit'
 
 class CommandParser():
@@ -217,6 +218,18 @@ class CommandParser():
             else:
                 return self.word_assignment(original, cmd, '=', CommandKind.WORD_ASSIGN)
 
+        elif cmd.startswith('load '):
+
+            return [CommandKind.LOAD, cmd[5:].strip()]
+
+        elif cmd == 'save':
+
+            return [CommandKind.SAVE]
+
+        elif cmd == 'exit':
+
+            return [CommandKind.EXIT]
+
         elif cmd.startswith('mkdir '):
 
             return self.course_create(original, cmd[6:], "")
@@ -252,7 +265,7 @@ class CommandParser():
                 if idx == -1:
                     raise InvalidCommandError("More requires an argument: " + original)
                 options = cmd[1:idx]
-                cmd = cmd[idx+1]
+                cmd = cmd[idx+1:]
 
             if cmd.startswith('#'):
                 return self.tag_lookup(original, cmd, options)
