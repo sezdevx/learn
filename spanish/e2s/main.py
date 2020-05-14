@@ -6,48 +6,75 @@ from commands import CommandParser
 from commands import CommandKind
 from words import WordKind
 
-def word_append(bank, c):
-    word = c[1]
-    kind = c[2]
-    index = c[3]
-    attrib = c[4]
-    attrib_idx = c[5]
-    values = c[6]
-    if not attrib:
-        w = bank.words[word]
-        if index != 0:
+def word_delete(bank, c):
+    options = c[1]
+    words = c[2]
+    for w in words:
+        name = w[0]
+        kind = w[1]
+        index = w[2]
+        attrib = w[3]
+        attrib_idx = w[4]
+
+        w = bank.words[name]
+        if index != 0 and w:
             w = w[index]
+        if not w:
+            print("COULDN'T FIND: ", name)
+            continue
         if not kind.unknown and not w.kind.unknown and kind != w.kind:
-            print("Mismatched word kinds: ", WordKind.get_prefix(kind), " vs " , WordKind.get_prefix(w.kind))
+            print("Mismatched word kinds: ", WordKind.get_prefix(kind), " vs " , WordKind.get_prefix(w.kind) + " for " + name)
+            continue
+
+        if not attrib:
+            w.delete()
         else:
-            w.append_meaning(values)
+            a = w.get_attribute(attrib, attrib_idx)
+            if not a:
+                print("COULDN'T FIND: ", str(a))
+            a.delete()
+
+
+def word_append(bank, c):
+    word, kind, index, attrib, attrib_idx, values = c[1], c[2], c[3], c[4], c[5], c[6]
+
+    w = bank.words[word]
+    if index != 0 and w:
+        w = w[index]
+    if not w:
+        print("COULDN'T FIND: ", word)
+        return
+    if not kind.unknown and not w.kind.unknown and kind != w.kind:
+        print("Mismatched word kinds: ", WordKind.get_prefix(kind), " vs " , WordKind.get_prefix(w.kind))
+        return
+
+    if not attrib:
+        w.append_meaning(values)
     else:
-        w = bank.words[word]
-        if index != 0:
-            w = w[index]
         a = w.get_attribute(attrib, attrib_idx)
+        if not a:
+            print("COULDN'T FIND: ", str(a))
         a.append(values)
 
 def word_remove(bank, c):
-    word = c[1]
-    kind = c[2]
-    index = c[3]
-    attrib = c[4]
-    attrib_idx = c[5]
-    values = c[6]
+    word, kind, index, attrib, attrib_idx, values = c[1], c[2], c[3], c[4], c[5], c[6]
+
+    w = bank.words[word]
+    if index != 0 and w:
+        w = w[index]
+    if not w:
+        print("COULDN'T FIND: ", word)
+        return
+    if not kind.unknown and not w.kind.unknown and kind != w.kind:
+        print("Mismatched word kinds: ", WordKind.get_prefix(kind), " vs " , WordKind.get_prefix(w.kind))
+        return
+
     if not attrib:
-        w = bank.words[word]
-        if index != 0:
-            w = w[index]
-        if not kind.unknown and not w.kind.unknown and kind != w.kind:
-            print("Mismatched word kinds: ", WordKind.get_prefix(kind), " vs " , WordKind.get_prefix(w.kind))
-        else:
-            w.remove_meaning(values)
+        w.remove_meaning(values)
     else:
-        w = bank.words[word]
-        if index != 0:
-            w = w[index]
         a = w.get_attribute(attrib, attrib_idx)
+        if not a:
+            print("COULDN'T FIND: ", str(a))
         a.remove(values)
 
 def word_assign(bank, c):
@@ -59,7 +86,11 @@ def word_assign(bank, c):
     values = c[6]
     if not attrib:
         if index != 0:
-            w = bank.words[word][index]
+            w = bank.words[word]
+            if not w:
+                print("COULDN'T FIND: ", word)
+                return
+            w = w[index]
             if not kind.unknown and not w.kind.unknown and kind != w.kind:
                 print("Mismatched word kinds: ", WordKind.get_prefix(kind), " vs " , WordKind.get_prefix(w.kind))
             else:
@@ -71,6 +102,8 @@ def word_assign(bank, c):
         if index != 0:
             w = w[index]
         a = w.get_attribute(attrib, attrib_idx)
+        if not a:
+            print("COULDN'T FIND: ", str(a))
         a.assign(values)
 
 def word_lookup(bank, c):
@@ -88,7 +121,6 @@ def word_lookup(bank, c):
             word = bank.words[name]
             if not word:
                 print("COULDN'T FIND: ", name)
-                print()
                 continue
             if index != 0:
                 word = word[index]
@@ -139,6 +171,8 @@ def input_loop():
             word_remove(bank, c)
         elif c[0] == CommandKind.WORD_LOOKUP:
             word_lookup(bank, c)
+        elif c[0] == CommandKind.WORD_DELETE:
+            word_delete(bank, c)
         elif c[0] == CommandKind.EXIT:
             exit(1)
         elif c[0] == CommandKind.LOAD:
