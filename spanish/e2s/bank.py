@@ -23,6 +23,9 @@ class WordBank():
             self.data = {
                 'words': {},
                 'rwords': {},
+                'letters': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+                            'k', 'l', 'm', 'n', 'ñ', 'o', 'p', 'q', 'r', 's',
+                            't', 'u', 'v', 'w', 'x', 'y', 'z', 'á', 'é', 'í', 'ó', 'ú'],
                 'tags': {},
                 'phrases': {
                     'p2r': {},
@@ -32,6 +35,12 @@ class WordBank():
                 },
                 'courses': {},
             }
+
+        if not 'letters' in self.data:
+            self.data['letters'] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+                                  'k', 'l', 'm', 'n', 'ñ', 'o', 'p', 'q', 'r', 's',
+                                  't', 'u', 'v', 'w', 'x', 'y', 'z', 'á', 'é', 'í', 'ó', 'ú']
+
 
         self.words = Words(self)
         self.tags = Tags(self)

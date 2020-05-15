@@ -13,6 +13,10 @@ class TagTextAttribute():
         self.tag.node[self.key] = text
 
     @property
+    def exists(self):
+        return self.key in self.tag.node
+
+    @property
     def value(self):
         if self.tag.exists:
             if self.key in self.tag.node:
@@ -46,6 +50,10 @@ class TagListAttribute():
         self.attribute = attrib
         self.index = attribute_idx
         self.key = attrib.key
+
+    @property
+    def exists(self):
+        return self.key in self.tag.node
 
     def __getitem__(self, item):
         if not isinstance(item, int):
@@ -240,6 +248,8 @@ class Tag():
     def assign_word(self, word, index):
         if not self.exists:
             raise VocabError("Can not add a word to a non-existing tag")
+        if isinstance(word, list):
+            word = word[0]
         if 0 < index <= len(self.node['w']):
             normalized = self.bank.words.normalize(word)
             if normalized and normalized not in self.node['w']:
@@ -271,21 +281,23 @@ class Tag():
             return True
         return False
 
-    def remove_word(self, word):
+    def remove_word(self, word, callback = True):
         if not self.exists:
             return
         normalized = self.bank.words.normalize(word)
         if normalized:
-            self.node['w'].remove(normalized)
+            if callback:
+                self.node['w'].remove(normalized)
             self.bank.words[normalized].remove_tag(self.normalized)
 
-    def remove_words(self, words):
+    def remove_words(self, words, callback = True):
         if not self.exists:
             return
         for w in words:
             normalized = self.bank.words.normalize(w)
             if normalized:
-                self.node['w'].remove(normalized)
+                if callback:
+                    self.node['w'].remove(normalized)
                 self.bank.words[normalized].remove_tag(self.normalized)
 
 

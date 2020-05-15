@@ -227,9 +227,40 @@ class Word():
         if self.exists:
             # TODO: complete this
             # update other stuff
-            del self.meanings[self.real_index]
-            if len(self.meanings) == 0:
+            if self.index != 0:
+                normalized = self.name + "[" + str(self.real_index+1) + "]"
+                for tag in self.node['t']:
+                    t = self.bank.tags[tag]
+                    if t.exists:
+                        t.remove_word(normalized, False)
+
+                for rw in self.node['m']:
+                    self.bank.words.remove_rword(rw, normalized)
+
+                del self.meanings[self.real_index]
+                # handle tgs
+                # handle rwords
+                if len(self.meanings) == 0:
+                    del self.words[self.word_key]
+            else:
+                normalized = []
+                i = 0
+                while i < len(self.meanings):
+                    normalized.append(self.name + "[" + str(i+1) + "]")
+                    i+=1
+                for tag in self.node['t']:
+                    t = self.bank.tags[tag]
+                    if t.exists:
+                        for n in normalized:
+                            t.remove_word(n, False)
+                i = 0
+                for mnode in self.meanings:
+                    for rw in mnode['m']:
+                        self.bank.words.remove_rword(rw, normalized[i])
+                    i += 1
+
                 del self.words[self.word_key]
+
             self.node = None
             self.real_index = -1
 
@@ -400,9 +431,37 @@ class Words():
     def __len__(self):
         return len(self.words)
 
+    # https://github.com/barrust/pyspellchecker/
+    def edit_distance_1(self, word):
+        letters = self.letters
+        splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
+        deletes = [L + R[1:] for L, R in splits if R]
+        transposes = [L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1]
+        replaces = [L + c + R[1:] for L, R in splits if R for c in letters]
+        inserts = [L + c + R for L, R in splits for c in letters]
+        return set(deletes + transposes + replaces + inserts)
+
     def __init__(self, bank):
         self.bank = bank
         self.words = bank.data['words']
+        self.rwords = bank.data['rwords']
+        self.letters = set(bank.data['letters'])
+
+    def remove_rword(self, rword, normalized):
+        r = self.rwords.get(rword, None)
+        if not r:
+            return
+        r['w'].remove(normalized)
+        if len(r['w']) == 0:
+            del self.rwords[rword]
+
+    def add_rword(self, rword, normalized):
+        r = self.rwords.get(rword, None)
+        if not r:
+            r = {'w': []}
+            self.rwords[rword] = r
+        if not normalized in r['w']:
+            r['w'].append(normalized)
 
     @classmethod
     def denormalize_name(cls, name):
@@ -424,6 +483,8 @@ class Words():
                 word_node = self.words.get(name, None)
                 if not word_node:
                     return None
+            else:
+                name = word_node[0]
 
         meanings = word_node[2]
 
@@ -457,6 +518,7 @@ class Words():
         if not (0 < attrib_idx <= len(node)):
             return None
         return name + '[' + str(meaning_idx) + ']:' + WordAttribs.get_json_key(attrib) + '[' + str(attrib_idx) + ']'
+
 
 
 

@@ -9,6 +9,7 @@ from words import WordKind
 from words import InvalidWordObjName
 from bank_utils import VocabError
 from bank_utils import BankUtils
+import readline
 
 class InvalidCommandError(VocabError):
     def __init__(self, message = ""):
@@ -55,6 +56,9 @@ class CommandParser():
             if text and text.startswith('#'):
                 if not self.bank.tags.complete_tags(text, self.matches):
                     return None
+            else:
+                line = readline.get_line_buffer()
+                sline = line.lstrip()
         try:
             return self.matches[state]
         except IndexError:

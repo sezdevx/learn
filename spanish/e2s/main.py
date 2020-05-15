@@ -77,12 +77,14 @@ def tag_lookup(bank, c):
                 print(t[index])
         else:
             a = t.get_attribute(attrib, attrib_idx)
-            if a:
+            if a.exists:
                 print(str(a))
                 if attrib_idx == 0:
                     print(a.value)
                 else:
                     print(a[attrib_idx])
+            else:
+                print("COULDN'T FIND: ", str(a))
 
 def tag_remove(bank, c):
     tag = c[1]
