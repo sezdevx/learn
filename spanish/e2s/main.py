@@ -226,6 +226,27 @@ def word_assign(bank, c):
             print("COULDN'T FIND: ", str(a))
         a.assign(values)
 
+def reverse_word_lookup(bank, c):
+    options = c[1]
+    rwords = c[2]
+
+    for rw in rwords:
+        words = bank.words.reverse_lookup(rw)
+        if not words:
+            print("COULDN'T FIND: ", rw)
+            continue
+        if len(words) > 1 or len(rwords) > 1:
+            print(rw)
+            i = 0
+            while i < len(words):
+                print(i+1, ')', Words.denormalize_name(words[i]))
+                i += 1
+        elif len(words) == 1:
+            print(Words.denormalize_name(words[0]))
+        else:
+            print("COULDN'T FIND: ", rw)
+
+
 def word_lookup(bank, c):
     INDENT = 3
     options = c[1]
@@ -257,6 +278,8 @@ def word_lookup(bank, c):
                         print(w.pretty_name)
                         kind = w.kind
                     print(INDENT * ' ', i, ')', w.meaning)
+                    if 't' in options and w.tags:
+                        print('Tags:',','.join(w.tags))
                     w = word[i+1]
             else:
                 print(word.pretty_name)
@@ -292,6 +315,8 @@ def input_loop():
             word_remove(bank, c)
         elif c[0] == CommandKind.WORD_LOOKUP:
             word_lookup(bank, c)
+        elif c[0] == CommandKind.REVERSE_WORD_LOOKUP:
+            reverse_word_lookup(bank, c)
         elif c[0] == CommandKind.WORD_DELETE:
             word_delete(bank, c)
 

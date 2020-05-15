@@ -161,7 +161,7 @@ class Word():
             self.node['t'].remove(tag)
 
     def add_tag(self, tag):
-        if self.node:
+        if self.node and tag not in self.node['t']:
             self.node['t'].append(tag)
 
     def __iter__(self):
@@ -274,24 +274,39 @@ class Word():
     def assign_meaning(self, meaning):
         if self.index == 0:
             raise VocabError("Can not update a word without an index: " + str(self))
+
+        normalized = self.name + '[' + str(self.real_index+1) + ']'
+        for rw in self.node['m']:
+            self.bank.words.remove_rword(rw, normalized)
+
+        for w in meaning:
+            self.bank.words.add_rword(w, normalized)
+
         if isinstance(meaning, list):
             self.node['m'] = meaning
         else:
             self.node['m'] = [meaning]
 
     def remove_meaning(self, meaning):
+        normalized = self.name + '[' + str(self.real_index+1) + ']'
         if isinstance(meaning, list):
             for m in meaning:
+                self.bank.words.remove_rword(m, normalized)
                 self.node['m'].remove(m)
         else:
+            self.bank.words.remove_rword(meaning, normalized)
             self.node['m'].remove(meaning)
         if len(self.node['m']) == 0:
             self.delete()
 
     def append_meaning(self, meaning):
+        normalized = self.name + '[' + str(self.real_index+1) + ']'
         if isinstance(meaning, list):
+            for w in meaning:
+                self.bank.words.add_rword(w, normalized)
             self.node['m'].extend(meaning)
         else:
+            self.bank.words.add_rword(meaning, normalized)
             self.node['m'].append(meaning)
 
 
@@ -334,7 +349,9 @@ class Word():
             self.node['wk'] = self.kind.value
         self.meanings.append(self.node)
         self.real_index = len(self.meanings) - 1
-
+        normalized = self.name + '[' + str(self.real_index+1) + ']'
+        for rw in meaning:
+            self.bank.words.add_rword(rw, normalized)
 
 
     def find(self, throw):
@@ -448,6 +465,7 @@ class Words():
         self.letters = set(bank.data['letters'])
 
     def remove_rword(self, rword, normalized):
+        rword = Spanish.reverse_normalize(rword)
         r = self.rwords.get(rword, None)
         if not r:
             return
@@ -456,12 +474,19 @@ class Words():
             del self.rwords[rword]
 
     def add_rword(self, rword, normalized):
+        rword = Spanish.reverse_normalize(rword)
         r = self.rwords.get(rword, None)
         if not r:
             r = {'w': []}
             self.rwords[rword] = r
         if not normalized in r['w']:
             r['w'].append(normalized)
+
+    def reverse_lookup(self, rword):
+        rword = Spanish.reverse_normalize(rword)
+        r = self.rwords.get(rword, None)
+        if r:
+            return r['w']
 
     @classmethod
     def denormalize_name(cls, name):

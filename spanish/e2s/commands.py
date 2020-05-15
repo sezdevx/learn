@@ -345,6 +345,7 @@ class Testing(unittest.TestCase):
 
     def test_lookups(self):
         commands = {
+            "?mother": [CommandKind.REVERSE_WORD_LOOKUP, "", ["mother"]],
             "el padre": [CommandKind.WORD_LOOKUP, "", [["padre", WordKind.Male, 0, None, 0]]],
             "mi madre es inteligente": [CommandKind.PHRASE_LOOKUP, "", 'mi madre es inteligente'],
         }

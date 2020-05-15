@@ -6,6 +6,10 @@ import unicodedata
 
 class Spanish():
     @classmethod
+    def reverse_normalize(cls, text):
+        return text.lower()
+
+    @classmethod
     def normalize(cls, text):
         """Normalizes a word, removing accents etc.."""
         text = unicodedata.normalize('NFD', text)
