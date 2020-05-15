@@ -43,10 +43,22 @@ class CommandKind(Enum):
     SAVE = 'save'
     LOAD = 'load'
     EXIT = 'exit'
+    CONTINUE = 'continue'
 
 class CommandParser():
     def __init__(self, bank):
         self.bank = bank
+
+    def complete(self, text, state):
+        if state == 0:
+            self.matches = []
+            if text and text.startswith('#'):
+                if not self.bank.tags.complete_tags(text, self.matches):
+                    return None
+        try:
+            return self.matches[state]
+        except IndexError:
+            return None
 
     def reverse_word_lookup(self, original, cmd, options):
         words = [a.strip() for a in cmd.split(',')]
@@ -184,9 +196,15 @@ class CommandParser():
         cmd = ' '.join(original.strip().split())
         if cmd.startswith('#'):
             if cmd.find('-=') != -1:
-                return self.tag_assignment(original, cmd, '-=', CommandKind.TAG_REMOVE)
+                r = self.tag_assignment(original, cmd, '-=', CommandKind.TAG_REMOVE)
+                if r[3] != 0:
+                    raise InvalidCommandError("Can not remove something from a tag member")
+                return r
             elif cmd.find('+=') != -1:
-                return self.tag_assignment(original, cmd, '+=', CommandKind.TAG_APPEND)
+                r = self.tag_assignment(original, cmd, '+=', CommandKind.TAG_APPEND)
+                if r[3] != 0:
+                    raise InvalidCommandError("Can not append something to a tag member")
+                return r
             elif cmd.find('=') != -1:
                 return self.tag_assignment(original, cmd, '=', CommandKind.TAG_ASSIGN)
             else:
@@ -292,7 +310,7 @@ class CommandParser():
 
             return self.phrase_lookup(original, cmd[1:].strip(), "")
 
-        else:
+        elif len(cmd) > 0:
 
             space_count = cmd.count(' ')
 
@@ -305,6 +323,8 @@ class CommandParser():
                     return self.phrase_lookup(original, cmd, "")
             else:
                 return self.word_lookup(original, cmd, "")
+        else:
+            return [CommandKind.CONTINUE]
 
 class Testing(unittest.TestCase):
     def check(self, commands):
@@ -374,6 +394,7 @@ class Testing(unittest.TestCase):
             "#family-beginner[1] el padre": [CommandKind.TAG_ASSIGN, "family", 'beginner', 1, None, 0, ["el padre"]],
             "#family-beginner = el padre, la madre": [CommandKind.TAG_ASSIGN, "family", 'beginner', 0, None, 0, ["el padre", "la madre"]],
             "#family-beginner += la madre": [CommandKind.TAG_APPEND, "family", 'beginner', 0, None, 0, ["la madre"]],
+            "#family-beginner": [CommandKind.TAG_LOOKUP, "", [["family", 'beginner', 0, None, 0]]],
         }
         self.check(commands)
 

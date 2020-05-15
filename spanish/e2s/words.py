@@ -110,7 +110,7 @@ class WordListAttribute():
         if self.index == 0:
             del self.word.node[self.key]
         else:
-            self.word.node[self.key].remove(self.index-1)
+            del self.word.node[self.key][self.index-1]
 
 class WordMeaningIterator():
     def __init__(self, word):
@@ -403,6 +403,13 @@ class Words():
     def __init__(self, bank):
         self.bank = bank
         self.words = bank.data['words']
+
+    @classmethod
+    def denormalize_name(cls, name):
+        if name.endswith('[1]'):
+            return name[:-3]
+        else:
+            return name
 
     def normalize(self, word):
         name, mkind, meaning_idx, attrib, attrib_idx = tuple(WordObjName.parse_object_name(word))

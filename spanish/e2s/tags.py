@@ -19,6 +19,10 @@ class TagTextAttribute():
                 return self.tag.node[self.key]
         return None
 
+    def remove(self, text):
+        if self.tag.node[self.key] == text:
+            del self.tag.node[self.key]
+
     def append(self, text):
         if isinstance(text, list):
             if len(text) != 1:
@@ -32,6 +36,9 @@ class TagTextAttribute():
     def delete(self):
         del self.tag.node[self.key]
 
+    def __str__(self):
+        return str(self.tag) + ':' + str(self.attrib.value)
+
 
 class TagListAttribute():
     def __init__(self, attrib, attribute_idx, tag):
@@ -41,10 +48,10 @@ class TagListAttribute():
         self.key = attrib.key
 
     def __getitem__(self, item):
-        if self.index != 0:
-            raise VocabError("Can not index to an already indexed attribute")
         if not isinstance(item, int):
             raise VocabError("Must pass an integer as an index: " + str(item))
+        if self.index != 0 and item != self.index:
+            raise VocabError("Can not index to an already indexed attribute")
         if self.key in self.tag.node:
             if 0 < item <= len(self.tag.node[self.key]):
                 return self.tag.node[self.key][item-1]
@@ -89,11 +96,22 @@ class TagListAttribute():
             else:
                 self.tag.node[self.key] = [value]
 
+    def remove(self, value):
+        if self.index != 0:
+            raise VocabError("Can not append to indexed attribute: " + str(self))
+        if isinstance(value, list):
+            if self.key in self.tag.node:
+                for v in value:
+                    self.tag.node[self.key].remove(v)
+        else:
+            if self.key in self.tag.node:
+                self.tag.node[self.key].remove(value)
+
     def __str__(self):
         if self.index == 0:
-            return str(self.tag) + str(self.attribute)
+            return str(self.tag) + ':' + str(self.attribute.value)
         else:
-            return str(self.tag) + str(self.attribute) + "[" + self.index + "]"
+            return str(self.tag) + ':' + str(self.attribute.value) + "[" + self.index + "]"
 
     @property
     def value(self):
@@ -106,7 +124,7 @@ class TagListAttribute():
         if self.index == 0:
             del self.tag.node[self.key]
         else:
-            self.tag.node[self.key].remove(self.index-1)
+            del self.tag.node[self.key][self.index-1]
 
 class Tag():
     @property
@@ -142,6 +160,12 @@ class Tag():
         else:
             return TagTextAttribute(attrib, self)
 
+    def __str__(self):
+        if self.sub_tag == '*':
+            return '#' + self.tag
+        else:
+            return '#' + self.tag + '-' + self.sub_tag
+
     def __init__(self, tag, sub_tag, tags, bank):
         self.tag = tag
         self.sub_tag = sub_tag
@@ -167,9 +191,10 @@ class Tag():
         return None
 
     def create(self):
-        if not self.node:
+        if not self.parent:
             self.parent = {}
             self.tags[self.tag] = self.parent
+        if not self.node:
             self.node = {'w':[]}
             self.parent[self.sub_tag] = self.node
 
@@ -200,27 +225,68 @@ class Tag():
 
         self.node['w'] = []
 
-    def add_word(self, word):
+    def assign_words(self, words):
+        if not self.exists:
+            raise VocabError("Can not add a word to a non-existing tag")
+        self.clear()
+        for word in words:
+            normalized = self.bank.words.normalize(word)
+            if normalized and normalized not in self.node['w']:
+                self.node['w'].append(normalized)
+                self.bank.words[normalized].add_tag(self.normalized)
+            else:
+                raise VocabError("No such word or already added before: " + word)
+
+    def assign_word(self, word, index):
+        if not self.exists:
+            raise VocabError("Can not add a word to a non-existing tag")
+        if 0 < index <= len(self.node['w']):
+            normalized = self.bank.words.normalize(word)
+            if normalized and normalized not in self.node['w']:
+                self.node['w'][index-1] = normalized
+                self.bank.words[normalized].add_tag(self.normalized)
+            else:
+                raise VocabError("No such word or already added before: " + word)
+
+
+    def append_word(self, word):
         if not self.exists:
             raise VocabError("Can not add a word to a non-existing tag")
         normalized = self.bank.words.normalize(word)
-        if normalized:
-            if word not in self.node['w']:
-                self.node['w'].append(normalized)
-                self.bank.words[normalized].add_tag(self.normalized)
+        if normalized and normalized not in self.node['w']:
+            self.node['w'].append(normalized)
+            self.bank.words[normalized].add_tag(self.normalized)
         else:
-            raise VocabError("No such word: " + word)
+            raise VocabError("No such word or already added before: " + word)
 
-    def add_words(self, words):
+    def append_words(self, words):
         for w in words:
-            self.add_word(w)
+            self.append_word(w)
+
+    def delete_at(self, index):
+        if not self.exists:
+            return False
+        if 0 < index <= len(self.node['w']):
+            del self.node['w'][index-1]
+            return True
+        return False
 
     def remove_word(self, word):
         if not self.exists:
             return
         normalized = self.bank.words.normalize(word)
-        self.node['w'].remove(normalized)
-        self.bank.words[normalized].remove_tag(self.normalized)
+        if normalized:
+            self.node['w'].remove(normalized)
+            self.bank.words[normalized].remove_tag(self.normalized)
+
+    def remove_words(self, words):
+        if not self.exists:
+            return
+        for w in words:
+            normalized = self.bank.words.normalize(w)
+            if normalized:
+                self.node['w'].remove(normalized)
+                self.bank.words[normalized].remove_tag(self.normalized)
 
 
 class Tags():
@@ -230,6 +296,44 @@ class Tags():
     def __init__(self, bank):
         self.bank = bank
         self.tags = bank.data['tags']
+
+    def get_tag(self, tag, sub_tag):
+        return Tag(tag, sub_tag, self.tags, self.bank)
+
+    def complete_tags(self, text, matches):
+        text_tag = text[1:]
+        idx = text_tag.find('-')
+        idx2 = text_tag.find(':')
+        if idx2 == -1:
+            if idx == -1:
+                for tag_name in self.tags:
+                    if tag_name.startswith(text_tag):
+                        for t in self.tags[tag_name]:
+                            if t == '*':
+                                matches.append('#' + tag_name)
+                                if len(matches) > 10:
+                                    return False
+                            else:
+                                matches.append('#' + tag_name + '-' + t)
+                                if len(matches) > 10:
+                                    return False
+            else:
+                tag = text_tag[:idx]
+                sub_tag = text_tag[idx+1:]
+                if self.tags.get(tag, None):
+                    for t in self.tags[tag]:
+                        if t != '*' and t.startswith(sub_tag):
+                            matches.append('#' + tag + '-' + t)
+                else:
+                    return False
+        else:
+            sub_a = text_tag[idx2+1:].lower()
+            #tag = self[text_tag[:idx2]]
+            for a in TagAttribs:
+                if a.value.startswith(sub_a):
+                    matches.append('#'+text_tag[:idx2]+":"+a.value)
+
+        return len(matches) > 0
 
     def __getitem__(self, item):
         if not item.startswith('#'):
@@ -389,15 +493,15 @@ class Testing(unittest.TestCase):
         r = parser.parse_command("#family padre, madre")
         t = tags.add_tag(r[1], r[2])
         assert len(tags) == 1
-        t.add_words(r[6])
+        t.append_words(r[6])
         assert t.words == ['padre[1]', 'madre[1]']
-        t.remove_word('la madre')
+        t.remove_words(['la madre'])
         assert t.words == ['padre[1]']
-        t.remove_word('padre')
+        t.remove_words(['padre'])
         assert t.words == []
 
-        t.add_word("el padre")
-        t.add_word("la madre")
+        t.append_word("el padre")
+        t.append_word("la madre")
         assert tags["family[1]"] == 'padre[1]'
         assert tags["family[2]"] == 'madre[1]'
         assert tags["family"][1] == 'padre[1]'

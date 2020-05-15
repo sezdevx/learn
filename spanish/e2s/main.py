@@ -5,6 +5,124 @@ from bank import WordBank
 from commands import CommandParser
 from commands import CommandKind
 from words import WordKind
+from words import Words
+
+def tag_delete(bank, c):
+    options = c[1]
+    tags = c[2]
+    for t in tags:
+        tag = t[0]
+        sub_tag = t[1]
+        index = t[2]
+        attrib = t[3]
+        attrib_idx = t[4]
+        t = bank.tags.get_tag(tag, sub_tag)
+        if not t.exists:
+            print("COULDN'T FIND: ", str(t))
+            continue
+        if not attrib:
+            if index == 0:
+                t.delete()
+            else:
+                t.delete_at(index)
+        else:
+            a = t.get_attribute(attrib, attrib_idx)
+            if a:
+                a.delete()
+
+def tag_assign(bank, c):
+    tag = c[1]
+    sub_tag = c[2]
+    index = c[3]
+    attrib = c[4]
+    attrib_idx = c[5]
+    values = c[6]
+    if not attrib:
+        t = bank.tags.add_tag(tag, sub_tag)
+        if index == 0:
+            t.assign_words(values)
+        else:
+            t.assign_word(values, index)
+    else:
+        t = bank.tags.get_tag(tag, sub_tag)
+        if t.exists:
+            a = t.get_attribute(attrib, attrib_idx)
+            if not a:
+                print("COULDN'T FIND: ", str(a))
+            a.assign(values)
+
+
+def tag_lookup(bank, c):
+    options = c[1]
+    tags = c[2]
+    for t in tags:
+        tag = t[0]
+        sub_tag = t[1]
+        index = t[2]
+        attrib = t[3]
+        attrib_idx = t[4]
+        t = bank.tags.get_tag(tag, sub_tag)
+        if not t.exists:
+            print("COULDN'T FIND: ", str(t))
+            continue
+        if not attrib:
+            if index == 0:
+                print(str(t))
+                print(', '.join([Words.denormalize_name(w) for w in t.words]))
+                # for w in t.words:
+                #     print(Words.denormalize_name(w), end=', ')
+                print()
+            else:
+                print(tag+'[' + str(index) + ']')
+                print(t[index])
+        else:
+            a = t.get_attribute(attrib, attrib_idx)
+            if a:
+                print(str(a))
+                if attrib_idx == 0:
+                    print(a.value)
+                else:
+                    print(a[attrib_idx])
+
+def tag_remove(bank, c):
+    tag = c[1]
+    sub_tag = c[2]
+    index = c[3]
+    attrib = c[4]
+    attrib_idx = c[5]
+    values = c[6]
+    t = bank.tags.get_tag(tag, sub_tag)
+    if not t.exists:
+        print("COULDN'T FIND: ", str(t))
+        return
+    if not attrib:
+        t.remove_words(values)
+    else:
+        if t.exists:
+            a = t.get_attribute(attrib, attrib_idx)
+            if not a:
+                print("COULDN'T FIND: ", str(a))
+            a.remove(values)
+
+def tag_append(bank, c):
+    tag = c[1]
+    sub_tag = c[2]
+    index = c[3]
+    attrib = c[4]
+    attrib_idx = c[5]
+    values = c[6]
+    t = bank.tags.get_tag(tag, sub_tag)
+    if not t.exists:
+        print("COULDN'T FIND: ", str(t))
+        return
+    if not attrib:
+        t.append_words(values)
+    else:
+        if t.exists:
+            a = t.get_attribute(attrib, attrib_idx)
+            if not a:
+                print("COULDN'T FIND: ", str(a))
+            a.append(values)
 
 def word_delete(bank, c):
     options = c[1]
@@ -154,9 +272,10 @@ def word_lookup(bank, c):
 
 
 bank = WordBank()
+parser = CommandParser(bank)
 def input_loop():
     global bank
-    parser = CommandParser(bank)
+    global parser
     while True:
         info = bank.summary()
         command = input("\n" + info + "\n% ").strip()
@@ -173,8 +292,22 @@ def input_loop():
             word_lookup(bank, c)
         elif c[0] == CommandKind.WORD_DELETE:
             word_delete(bank, c)
+
+        elif c[0] == CommandKind.TAG_ASSIGN:
+            tag_assign(bank, c)
+        elif c[0] == CommandKind.TAG_APPEND:
+            tag_append(bank, c)
+        elif c[0] == CommandKind.TAG_REMOVE:
+            tag_remove(bank, c)
+        elif c[0] == CommandKind.TAG_LOOKUP:
+            tag_lookup(bank, c)
+        elif c[0] == CommandKind.TAG_DELETE:
+            tag_delete(bank, c)
+
         elif c[0] == CommandKind.EXIT:
             exit(1)
+        elif c[0] == CommandKind.CONTINUE:
+            pass
         elif c[0] == CommandKind.LOAD:
             bank.load(c[1])
         elif c[0] == CommandKind.SAVE:
@@ -184,7 +317,7 @@ if len(sys.argv) > 1:
     bank.load(sys.argv[1])
 else:
     bank.load('espanol.json')
-#readline.set_completer(bank.complete)
+readline.set_completer(parser.complete)
 # ' ', '\t', '\n', '"', '\\', '\'', '`', '@', '$', '>', '<', '=', ';', '|', '&', '{', '(', '\0'
 #readline.set_completer_delims(' \t\n"\'\\`@$><=;|&{(')
 readline.set_completer_delims(' \t\n"\'\\`@$><=;|&{(')

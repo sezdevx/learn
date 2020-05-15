@@ -1,6 +1,7 @@
 import json
 import os.path
 from words import Words
+from tags import Tags
 import unittest
 
 class WordBank():
@@ -33,6 +34,7 @@ class WordBank():
             }
 
         self.words = Words(self)
+        self.tags = Tags(self)
         self.name = os.path.basename(path)
 
     def summary(self):
