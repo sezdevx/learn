@@ -59,6 +59,12 @@ class CommandParser():
             else:
                 line = readline.get_line_buffer()
                 sline = line.lstrip()
+                if sline.startswith('?'):
+                    if not self.bank.words.reverse_complete(sline, text, self.matches):
+                        return None
+                elif sline.startswith('more '):
+                    if not self.bank.words.complete(sline, text, self.matches):
+                        return None
         try:
             return self.matches[state]
         except IndexError:

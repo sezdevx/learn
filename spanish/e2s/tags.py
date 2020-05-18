@@ -243,7 +243,8 @@ class Tag():
                 self.node['w'].append(normalized)
                 self.bank.words[normalized].add_tag(self.normalized)
             else:
-                raise VocabError("No such word or already added before: " + word)
+                print("No such word or already added before: " + word)
+                #raise VocabError("No such word or already added before: " + word)
 
     def assign_word(self, word, index):
         if not self.exists:
@@ -256,7 +257,8 @@ class Tag():
                 self.node['w'][index-1] = normalized
                 self.bank.words[normalized].add_tag(self.normalized)
             else:
-                raise VocabError("No such word or already added before: " + word)
+                print("No such word or already added before: " + word)
+                #raise VocabError("No such word or already added before: " + word)
 
 
     def append_word(self, word):
@@ -267,7 +269,8 @@ class Tag():
             self.node['w'].append(normalized)
             self.bank.words[normalized].add_tag(self.normalized)
         else:
-            raise VocabError("No such word or already added before: " + word)
+            print("No such word or already added before: " + word)
+            #raise VocabError("No such word or already added before: " + word)
 
     def append_words(self, words):
         for w in words:

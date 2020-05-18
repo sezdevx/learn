@@ -448,6 +448,47 @@ class Words():
     def __len__(self):
         return len(self.words)
 
+    def reverse_complete(self, line, text, matches):
+        idx = line.rfind(',')
+        if idx != -1:
+            to_be_completed = line[idx+1:]
+            if to_be_completed.find('  ') != -1:
+                key = ' '.join(to_be_completed.strip().split())
+            else:
+                key = to_be_completed.strip()
+        else:
+            key = text
+
+        for rw in self.rwords:
+            if rw.startswith(key):
+                matches.append(rw)
+                if len(matches) > 10:
+                    return False
+        return True
+
+
+    def complete(self, line, text, matches):
+        if text.startswith('-'):
+            return False
+        if line.startswith('more '):
+            idx = line.rfind(',')
+            if idx != -1:
+                to_be_completed = line[idx+1:]
+                if to_be_completed.find('  ') != -1:
+                    key = ' '.join(to_be_completed.strip().split())
+                else:
+                    key = to_be_completed.strip()
+            else:
+                key = text
+
+            for w in self.words:
+                if w.startswith(key):
+                    matches.append(w)
+                    if len(matches) > 10:
+                        return False
+            return True
+
+
     # https://github.com/barrust/pyspellchecker/
     def edit_distance_1(self, word):
         letters = self.letters
