@@ -7,6 +7,42 @@ from commands import CommandKind
 from words import WordKind
 from words import Words
 
+def course_create(bank, c):
+    options = c[1]
+    name = c[2]
+
+    bank.change_course(bank.courses.add_course(name))
+
+def course_delete(bank, c):
+    options = c[1]
+    name = c[2]
+
+    if bank.courses.delete_course(name):
+        bank.change_course(None)
+
+def course_change(bank, c):
+    options = c[1]
+    name = c[2]
+
+    c = bank.courses.get_course(name)
+    bank.change_course(c)
+
+def course_lookup(bank, c):
+    options = c[1]
+    name = c[2]
+
+    c = bank.courses.get_course(name)
+    print(c)
+
+def course_clear(bank, c):
+    options = c[1]
+    name = c[2]
+
+    c = bank.courses.get_course(name)
+    if c:
+        c.clear()
+
+
 def tag_delete(bank, c):
     options = c[1]
     tags = c[2]
@@ -30,6 +66,31 @@ def tag_delete(bank, c):
             if a:
                 a.delete()
 
+def tag_clear(bank, c):
+    options = c[1]
+    tags = c[2]
+    for t in tags:
+        tag = t[0]
+        sub_tag = t[1]
+        index = t[2]
+        attrib = t[3]
+        attrib_idx = t[4]
+        t = bank.tags.get_tag(tag, sub_tag)
+        if not t.exists:
+            print("COULDN'T FIND: ", str(t))
+            continue
+        if not attrib:
+            if index == 0:
+                t.clear()
+            else:
+                print("ERROR: something is wrong here")
+        else:
+            a = t.get_attribute(attrib, attrib_idx)
+            if a:
+                a.clear()
+            else:
+                print("ERROR: something is wrong here")
+
 def tag_assign(bank, c):
     tag = c[1]
     sub_tag = c[2]
@@ -39,10 +100,22 @@ def tag_assign(bank, c):
     values = c[6]
     if not attrib:
         t = bank.tags.add_tag(tag, sub_tag)
-        if index == 0:
-            t.assign_words(values)
+        if len(values) == 1 and values[0].startswith('#'):
+            t2 = bank.tags[values[0]]
+            if not t2.exists:
+                print("No such tag:", values[0])
+            else:
+                t.assign_from(t2)
         else:
-            t.assign_word(values, index)
+            if index == 0:
+                t.assign_words(values)
+            else:
+                if index == len(t.words)+1 and len(values) == 1:
+                    t.append_words(values)
+                else:
+                    t.assign_word(values, index)
+            if t.empty:
+                t.delete()
     else:
         t = bank.tags.get_tag(tag, sub_tag)
         if t.exists:
@@ -98,7 +171,14 @@ def tag_remove(bank, c):
         print("COULDN'T FIND: ", str(t))
         return
     if not attrib:
-        t.remove_words(values)
+        if len(values) == 1 and values[0].startswith('#'):
+            t2 = bank.tags[values[0]]
+            if not t2.exists:
+                print("No such tag:", values[0])
+            else:
+                t.remove_from(t2)
+        else:
+            t.remove_words(values)
     else:
         if t.exists:
             a = t.get_attribute(attrib, attrib_idx)
@@ -118,7 +198,14 @@ def tag_append(bank, c):
         print("COULDN'T FIND: ", str(t))
         return
     if not attrib:
-        t.append_words(values)
+        if len(values) == 1 and values[0].startswith('#'):
+            t2 = bank.tags[values[0]]
+            if not t2.exists:
+                print("No such tag:", values[0])
+            else:
+                t.append_from(t2)
+        else:
+            t.append_words(values)
     else:
         if t.exists:
             a = t.get_attribute(attrib, attrib_idx)
@@ -330,8 +417,23 @@ def input_loop():
             tag_lookup(bank, c)
         elif c[0] == CommandKind.TAG_DELETE:
             tag_delete(bank, c)
+        elif c[0] == CommandKind.TAG_CLEAR:
+            tag_clear(bank, c)
+
+
+        elif c[0] == CommandKind.COURSE_CHANGE:
+            course_change(bank, c)
+        elif c[0] == CommandKind.COURSE_CREATE:
+            course_create(bank, c)
+        elif c[0] == CommandKind.COURSE_DELETE:
+            course_delete(bank, c)
+        elif c[0] == CommandKind.COURSE_LOOKUP:
+            course_lookup(bank, c)
+        elif c[0] == CommandKind.COURSE_CLEAR:
+            course_clear(bank, c)
 
         elif c[0] == CommandKind.EXIT:
+            bank.save()
             exit(1)
         elif c[0] == CommandKind.CONTINUE:
             pass

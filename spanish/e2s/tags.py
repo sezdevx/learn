@@ -16,6 +16,11 @@ class TagTextAttribute():
     def exists(self):
         return self.key in self.tag.node
 
+    def clear(self):
+        if self.tag.exists:
+            if self.key in self.tag.node:
+                self.tag.node[self.key] = ''
+
     @property
     def value(self):
         if self.tag.exists:
@@ -54,6 +59,11 @@ class TagListAttribute():
     @property
     def exists(self):
         return self.key in self.tag.node
+
+    def clear(self):
+        if self.tag.exists:
+            if self.key in self.tag.node:
+                self.tag.node[self.key] = []
 
     def __getitem__(self, item):
         if not isinstance(item, int):
@@ -198,6 +208,12 @@ class Tag():
             return self.node['w'][:]
         return None
 
+    @property
+    def empty(self):
+        if self.node:
+            return len(self.node['w']) == 0
+        return True
+
     def create(self):
         if not self.parent:
             self.parent = {}
@@ -210,18 +226,48 @@ class Tag():
         if not self.exists:
             return
 
-        if self.sub_tag == '*':
-            for sub_tag in self.parent:
-                for w in self.parent[sub_tag]['w']:
-                    word = self.bank.words[w]
-                    if sub_tag == '*':
-                        word.remove_tag(self.tag)
-                    else:
-                        word.remove_tag(self.tag + '-' + sub_tag)
-            del self.tags[self.tag]
-        else:
-            self.clear()
-            del self.parent[self.sub_tag]
+        # if self.sub_tag == '*':
+        #     for sub_tag in self.parent:
+        #         for w in self.parent[sub_tag]['w']:
+        #             word = self.bank.words[w]
+        #             if sub_tag == '*':
+        #                 word.remove_tag(self.tag)
+        #             else:
+        #                 word.remove_tag(self.tag + '-' + sub_tag)
+        #     del self.tags[self.tag]
+        # else:
+        #     self.clear()
+        #     del self.parent[self.sub_tag]
+        self.clear()
+        del self.parent[self.sub_tag]
+
+    def assign_from(self, target):
+        if not self.exists or not target.exists:
+            return
+
+        if target.tag == self.tag and target.sub_tag == self.sub_tag:
+            return
+
+        self.clear()
+        self.assign_words(target.words)
+
+    def append_from(self, target):
+        if not self.exists or not target.exists:
+            return
+
+        if target.tag == self.tag and target.sub_tag == self.sub_tag:
+            return
+
+        self.append_words(target.words)
+
+    def remove_from(self, target):
+        if not self.exists or not target.exists:
+            return
+
+        if target.tag == self.tag and target.sub_tag == self.sub_tag:
+            return
+
+        self.remove_words(target.words)
 
     def clear(self):
         if not self.exists:
@@ -287,22 +333,33 @@ class Tag():
     def remove_word(self, word, callback = True):
         if not self.exists:
             return
-        normalized = self.bank.words.normalize(word)
+        if not callback:
+            normalized = word
+        else:
+            normalized = self.bank.words.normalize(word)
         if normalized:
+            self.node['w'].remove(normalized)
             if callback:
-                self.node['w'].remove(normalized)
-            self.bank.words[normalized].remove_tag(self.normalized)
+                self.bank.words[normalized].remove_tag(self.normalized)
+
+        if len(self.node['w']) == 0:
+            self.delete()
 
     def remove_words(self, words, callback = True):
         if not self.exists:
             return
         for w in words:
-            normalized = self.bank.words.normalize(w)
-            if normalized:
+            if not callback:
+                normalized = w
+            else:
+                normalized = self.bank.words.normalize(w)
+            if normalized and normalized in self.node['w']:
+                self.node['w'].remove(normalized)
                 if callback:
-                    self.node['w'].remove(normalized)
-                self.bank.words[normalized].remove_tag(self.normalized)
+                    self.bank.words[normalized].remove_tag(self.normalized)
 
+        if len(self.node['w']) == 0:
+            self.delete()
 
 class Tags():
     def __len__(self):

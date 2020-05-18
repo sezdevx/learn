@@ -27,6 +27,7 @@ class CommandKind(Enum):
     WORD_REMOVE = 'word-obj-remove'
     WORD_APPEND = 'word-obj-append'
 
+    TAG_CLEAR = 'tag-obj-clear'
     TAG_DELETE = 'tag-obj-delete'
     TAG_LOOKUP = 'tag-obj-lookup'
     TAG_ASSIGN = 'tag-obj-assign'
@@ -40,6 +41,7 @@ class CommandKind(Enum):
     COURSE_DELETE = 'course-delete'
     COURSE_CREATE = 'course-create'
     COURSE_CHANGE = 'course-change'
+    COURSE_CLEAR  = 'course-clear'
 
     SAVE = 'save'
     LOAD = 'load'
@@ -117,6 +119,22 @@ class CommandParser():
 
         return [CommandKind.TAG_DELETE, options, r]
 
+    def tag_clear(self, original, cmd, options):
+        if cmd.find(',') != -1:
+            tags = [a.strip() for a in cmd.split(',')]
+        else:
+            tags = [a.strip() for a in cmd.split(' ')]
+        r = []
+        for tag in tags:
+            if not TagObjName.is_valid(tag):
+                raise InvalidTagObjName("Not a valid tag name: " + tag + " in '" + original + "'")
+            s = TagObjName.parse_object_name(tag)
+            if s[2] != 0 or s[4] != 0:
+                raise InvalidCommandError("Can not clear an indexed item here: " + original)
+            r.append(s)
+
+        return [CommandKind.TAG_CLEAR, options, r]
+
     def reverse_phrase_lookup(self, original, cmd, options):
         return [CommandKind.REVERSE_PHRASE_LOOKUP, options, cmd]
 
@@ -131,6 +149,9 @@ class CommandParser():
 
     def course_delete(self, original, cmd, options):
         return [CommandKind.COURSE_DELETE, options, cmd]
+
+    def course_clear(self, original, cmd, options):
+        return [CommandKind.COURSE_CLEAR, options, cmd]
 
     def course_create(self, original, cmd, options):
         return [CommandKind.COURSE_CREATE, options, cmd]
@@ -265,6 +286,21 @@ class CommandParser():
         elif cmd.startswith('cd '):
 
             return self.course_change(original, cmd[3:], "")
+
+        elif cmd.startswith('clear '):
+            cmd = cmd[6:]
+            options = ""
+            if cmd.startswith('-'):
+                idx = cmd.find(' ')
+                if idx == -1:
+                    raise InvalidCommandError("More requires an argument: " + original)
+                options = cmd[1:idx]
+                cmd = cmd[idx+1]
+
+            if cmd.startswith('#'):
+                return self.tag_clear(original, cmd, options)
+            elif cmd.startswith('$'):
+                return self.course_clear(original, cmd[1:].strip(), options)
 
         elif cmd.startswith('rm '):
             cmd = cmd[3:]

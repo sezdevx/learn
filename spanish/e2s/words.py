@@ -251,8 +251,7 @@ class Word():
                 for tag in self.node['t']:
                     t = self.bank.tags[tag]
                     if t.exists:
-                        for n in normalized:
-                            t.remove_word(n, False)
+                        t.remove_words(normalized, False)
                 i = 0
                 for mnode in self.meanings:
                     for rw in mnode['m']:
@@ -449,6 +448,9 @@ class Words():
         return len(self.words)
 
     def reverse_complete(self, line, text, matches):
+        mtext = text
+        if text.startswith('?'):
+            mtext = text[1:]
         idx = line.rfind(',')
         if idx != -1:
             to_be_completed = line[idx+1:]
@@ -457,11 +459,14 @@ class Words():
             else:
                 key = to_be_completed.strip()
         else:
-            key = text
+            key = mtext
 
         for rw in self.rwords:
             if rw.startswith(key):
-                matches.append(rw)
+                if mtext != text:
+                    matches.append('?' + rw)
+                else:
+                    matches.append(rw)
                 if len(matches) > 10:
                     return False
         return True

@@ -2,13 +2,21 @@ import json
 import os.path
 from words import Words
 from tags import Tags
+from courses import Courses
 import unittest
 
 class WordBank():
     MEMORY_FILE = '/proc/espanol/memory'
 
+    def change_course(self, course):
+        if course:
+            self.course = course
+        else:
+            self.course = None
+
     def __init__(self, path = MEMORY_FILE):
         self.load(path)
+        self.course = None
 
     def load(self, path):
         try:
@@ -44,6 +52,7 @@ class WordBank():
 
         self.words = Words(self)
         self.tags = Tags(self)
+        self.courses = Courses(self)
         self.name = os.path.basename(path)
 
     def summary(self):
