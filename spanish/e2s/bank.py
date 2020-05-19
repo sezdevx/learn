@@ -56,7 +56,10 @@ class WordBank():
         self.name = os.path.basename(path)
 
     def summary(self):
-        return str(len(self.words)) + " w"
+        if self.course:
+            return self.course.name
+        else:
+            return str(len(self.words)) + " w"
 
     def save(self):
         if self.path != WordBank.MEMORY_FILE:

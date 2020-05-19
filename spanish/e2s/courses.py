@@ -6,7 +6,7 @@ import datetime
 
 class Course():
 
-    def __init__(self, bank, name):
+    def __init__(self, name, bank):
         self.bank = bank
         self.name = name
         self.courses = bank.data['courses']
@@ -62,6 +62,7 @@ class Courses():
 
     def __init__(self, bank):
         self.bank = bank
+        self.courses = bank.data['courses']
 
     def add_course(self, name):
         c = Course(name, self.bank)
@@ -69,7 +70,10 @@ class Courses():
         return c
 
     def get_course(self, name):
-        return Course(name, self.bank)
+        if name in self.courses:
+            return Course(name, self.bank)
+        else:
+            return None
 
     def delete_course(self, name):
         c = Course(name, self.bank)
