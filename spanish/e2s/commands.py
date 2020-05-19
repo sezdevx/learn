@@ -42,11 +42,13 @@ class CommandKind(Enum):
     COURSE_CREATE = 'course-create'
     COURSE_CHANGE = 'course-change'
     COURSE_CLEAR  = 'course-clear'
+    COURSE_PUT    = 'course-put'
 
     SAVE = 'save'
     LOAD = 'load'
     EXIT = 'exit'
     CONTINUE = 'continue'
+    LIST = 'list'
 
 class CommandParser():
     def __init__(self, bank):
@@ -67,10 +69,16 @@ class CommandParser():
                 elif sline.startswith('more '):
                     if not self.bank.words.complete(sline, text, self.matches):
                         return None
+                elif sline.startswith('cd '):
+                    if not self.bank.courses.complete(text, self.matches):
+                        return None
         try:
             return self.matches[state]
         except IndexError:
             return None
+
+    def list_command(self, original, cmd, options):
+        return [CommandKind.LIST, options, cmd]
 
     def reverse_word_lookup(self, original, cmd, options):
         words = [a.strip() for a in cmd.split(',')]
@@ -105,6 +113,27 @@ class CommandParser():
             r.append(TagObjName.parse_object_name(tag))
 
         return [CommandKind.TAG_LOOKUP, options, r]
+
+    def course_put(self, original, cmd, options):
+        if not self.bank.course:
+            print("WARNING: must first change to a course")
+            return [CommandKind.CONTINUE]
+        words = [a.strip() for a in cmd.split(',')]
+        t = []
+        w = []
+        p = []
+        for word in words:
+            if word.startswith('#'):
+                if not TagObjName.is_valid(word):
+                    raise InvalidTagObjName("Not a valid tag name: " + word + " in '" + original + "'")
+                t.append(word)
+            else:
+                if not WordObjName.is_valid(word):
+                    raise InvalidWordObjName("Not a valid word name: " + word + " in '" + original + "'")
+                w.append(word)
+
+        return [CommandKind.COURSE_PUT, options, w, t, p]
+
 
     def tag_delete(self, original, cmd, options):
         if cmd.find(',') != -1:
@@ -302,13 +331,25 @@ class CommandParser():
             elif cmd.startswith('$'):
                 return self.course_clear(original, cmd[1:].strip(), options)
 
+        elif cmd.startswith('put '):
+            cmd = cmd[3:]
+            options = ""
+            if cmd.startswith('-'):
+                idx = cmd.find(' ')
+                if idx == -1:
+                    raise InvalidCommandError("put requires an argument: " + original)
+                options = cmd[1:idx]
+                cmd = cmd[idx+1]
+
+            return self.course_put(original, cmd, options)
+
         elif cmd.startswith('rm '):
             cmd = cmd[3:]
             options = ""
             if cmd.startswith('-'):
                 idx = cmd.find(' ')
                 if idx == -1:
-                    raise InvalidCommandError("More requires an argument: " + original)
+                    raise InvalidCommandError("rm requires an argument: " + original)
                 options = cmd[1:idx]
                 cmd = cmd[idx+1]
 
@@ -321,6 +362,21 @@ class CommandParser():
             else:
                 return self.word_delete(original, cmd, options)
 
+        elif cmd.startswith('ls'):
+            cmd = cmd[2:]
+            if cmd.startswith(' '):
+                cmd = cmd[1:]
+            options = ""
+            if cmd.startswith('-'):
+                idx = cmd.find(' ')
+                if idx != -1:
+                    options = cmd[1:idx]
+                    cmd = cmd[idx+1:]
+                else:
+                    options = cmd[1:]
+                    cmd = ""
+
+            return self.list_command(original, cmd, options)
         elif cmd.startswith('more '):
             cmd = cmd[5:]
             options = ""

@@ -7,6 +7,7 @@ from commands import CommandKind
 from words import WordKind
 from words import Words
 
+
 def course_create(bank, c):
     options = c[1]
     name = c[2]
@@ -42,6 +43,47 @@ def course_clear(bank, c):
     if c:
         c.clear()
 
+def course_put(bank, c):
+    options = c[1]
+    course = bank.course
+    print(c[2])
+    course.put_words(c[2])
+    course.put_tags(c[3])
+
+def list_words(bank, rest):
+    i = 0
+    for word in bank.words:
+        if rest:
+            if not word.name.startswith(rest):
+                continue
+        print(word.pretty_name)
+        i+=1
+        if i % 15 == 0:
+            x = input("Press enter to continue")
+            if x == 'x' or x == 'q':
+                break
+
+
+def list_command(bank, c):
+    options = c[1]
+    rest = c[2]
+
+    if not options or options == 'c':
+        for course in bank.courses:
+            if rest:
+                if course.name.startswith(rest):
+                    print(f"{course.name}: {course.word_count} words")
+            else:
+                print(f"{course.name}: {course.word_count} words")
+    elif options == 'w':
+        if bank.course:
+            ws = bank.course.words
+            for w in ws:
+                word = bank.words[w]
+                if word.exists:
+                    print(word.pretty_name)
+        else:
+            list_words(bank, rest)
 
 def tag_delete(bank, c):
     options = c[1]
@@ -431,12 +473,16 @@ def input_loop():
             course_lookup(bank, c)
         elif c[0] == CommandKind.COURSE_CLEAR:
             course_clear(bank, c)
+        elif c[0] == CommandKind.COURSE_PUT:
+            course_put(bank, c)
 
         elif c[0] == CommandKind.EXIT:
             bank.save()
             exit(1)
         elif c[0] == CommandKind.CONTINUE:
             pass
+        elif c[0] == CommandKind.LIST:
+            list_command(bank, c)
         elif c[0] == CommandKind.LOAD:
             bank.load(c[1])
         elif c[0] == CommandKind.SAVE:
