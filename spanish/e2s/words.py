@@ -475,25 +475,24 @@ class Words():
     def complete(self, line, text, matches):
         if text.startswith('-'):
             return False
-        if line.startswith('more ') or line.startswith('put '):
-            if line.startswith('put ') and not self.bank.course:
-                return False
-            idx = line.rfind(',')
-            if idx != -1:
-                to_be_completed = line[idx+1:]
-                if to_be_completed.find('  ') != -1:
-                    key = ' '.join(to_be_completed.strip().split())
-                else:
-                    key = to_be_completed.strip()
+        if line.startswith('put ') and not self.bank.course:
+            return False
+        idx = line.rfind(',')
+        if idx != -1:
+            to_be_completed = line[idx+1:]
+            if to_be_completed.find('  ') != -1:
+                key = ' '.join(to_be_completed.strip().split())
             else:
-                key = text
+                key = to_be_completed.strip()
+        else:
+            key = text
 
-            for w in self.words:
-                if w.startswith(key):
-                    matches.append(w)
-                    if len(matches) > 10:
-                        return False
-            return True
+        for w in self.words:
+            if w.startswith(key):
+                matches.append(w)
+                if len(matches) > 10:
+                    return False
+        return True
 
 
     # https://github.com/barrust/pyspellchecker/
@@ -630,6 +629,7 @@ class WordAttribs(Enum):
     ANONYMS = 'anonyms'
     IMAGES = 'images'
     KEYWORD = 'keyword'
+    OTHER_SEX = 'other'
 
     @classmethod
     def parse(cls, attrib, message):
@@ -653,6 +653,8 @@ class WordAttribs(Enum):
             return 'a'
         elif attrib == WordAttribs.KEYWORD:
             return 'k'
+        elif attrib == WordAttribs.OTHER_SEX:
+            return 'o'
         else:
             return None
 

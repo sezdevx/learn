@@ -26,6 +26,7 @@ class CommandKind(Enum):
     WORD_ASSIGN = 'word-obj-assign'
     WORD_REMOVE = 'word-obj-remove'
     WORD_APPEND = 'word-obj-append'
+    WORD_OPPOSITE_SEX = 'word-opposite-sex'
 
     TAG_CLEAR = 'tag-obj-clear'
     TAG_DELETE = 'tag-obj-delete'
@@ -210,6 +211,30 @@ class CommandParser():
     def course_change(self, original, cmd, options):
         return [CommandKind.COURSE_CHANGE, options, cmd]
 
+    def word_opposite_sex(self, original, cmd, symbol, cmd_kind, kind = WordKind.Unknown):
+        idx = cmd.find(symbol)
+        symbol_len = len(symbol)
+
+        if idx == 0 or idx == (len(cmd) - symbol_len):
+            raise InvalidCommandError("Invalid command: " + original)
+
+        value = cmd[idx+symbol_len:].strip()
+        word = cmd[:idx].strip()
+
+        if not WordObjName.is_valid(word):
+            raise InvalidWordObjName("Not a valid word name: " + word + " in '" + original + "'")
+
+        name, mkind, meaning_idx, attribute, attribute_idx = tuple(WordObjName.parse_object_name(word))
+        if attribute:
+            raise InvalidCommandError("Does not work with attributes: " + original)
+
+        name2, mkind2, meaning_idx2, attribute, attribute_idx = tuple(WordObjName.parse_object_name(value))
+        if attribute:
+            raise InvalidCommandError("Does not work with attributes: " + original)
+
+        return [cmd_kind, name, mkind, meaning_idx, name2, mkind2, meaning_idx2]
+
+
     def word_assignment(self, original, cmd, symbol, cmd_kind, kind = WordKind.Unknown):
         idx = cmd.find(symbol)
         symbol_len = len(symbol)
@@ -309,6 +334,10 @@ class CommandParser():
                 return self.word_assignment(original, cmd, '+=', CommandKind.WORD_APPEND, kind)
             else:
                 return self.word_assignment(original, cmd, '=', CommandKind.WORD_ASSIGN, kind)
+
+        elif cmd.find("==") != -1:
+
+            return self.word_opposite_sex(original, cmd, '==', CommandKind.WORD_OPPOSITE_SEX)
 
         elif cmd.find("=") != -1:
             if cmd.find('-=') != -1:

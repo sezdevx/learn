@@ -6,6 +6,8 @@ from commands import CommandParser
 from commands import CommandKind
 from words import WordKind
 from words import Words
+from words import WordAttribs
+from commands import InvalidCommandError
 
 
 def course_create(bank, c):
@@ -44,6 +46,35 @@ def course_clear(bank, c):
         c.clear()
         if bank.course and bank.course.name == name:
             bank.course = bank.courses.get_course(name)
+
+def opposite_sex(bank, c):
+    name1 = c[1]
+    kind1 = c[2]
+    idx1 = c[3]
+    name2 = c[4]
+    kind2 = c[5]
+    idx2 = c[6]
+
+    if idx1 == 0:
+        idx1 +=1
+    if idx2 == 0:
+        idx2 +=1
+    w = bank.words[name1][idx1]
+    if not kind1.unknown and w.kind != kind1:
+        raise InvalidCommandError("Mismatching kinds: " + kind1 + " vs " + w.kind)
+    w2 = bank.words[name2][idx2]
+
+    if not w.exists:
+        print("No such word: ", w.pretty_name)
+        return
+
+    if not w2.exists:
+        print("No such word: ", w2.pretty_name)
+        return
+
+    w[WordAttribs.OTHER_SEX].assign(str(w2))
+    w2[WordAttribs.OTHER_SEX].assign(str(w))
+
 
 def course_put(bank, c):
     options = c[1]
@@ -489,6 +520,9 @@ def input_loop():
             reverse_word_lookup(bank, c)
         elif c[0] == CommandKind.WORD_DELETE:
             word_delete(bank, c)
+        elif c[0] == CommandKind.WORD_OPPOSITE_SEX:
+            opposite_sex(bank, c)
+
 
         elif c[0] == CommandKind.TAG_ASSIGN:
             tag_assign(bank, c)
