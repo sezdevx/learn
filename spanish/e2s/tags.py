@@ -178,11 +178,15 @@ class Tag():
         else:
             return TagTextAttribute(attrib, self)
 
-    def __str__(self):
+    @property
+    def name(self):
         if self.sub_tag == '*':
             return '#' + self.tag
         else:
             return '#' + self.tag + '-' + self.sub_tag
+
+    def __str__(self):
+        return self.name
 
     def __init__(self, tag, sub_tag, tags, bank):
         self.tag = tag
@@ -361,9 +365,43 @@ class Tag():
         if len(self.node['w']) == 0:
             self.delete()
 
+class TagIterator():
+
+    def __init__(self, tags):
+        self.tags = tags
+        self.iter = iter(self.tags.tags)
+        self.sub_iter = None
+        self.current = None
+
+    def __iter__(self):
+        self.iter = iter(self.tags.tags)
+        self.sub_iter = None
+        self.current = None
+        return self
+
+    def __next__(self):
+        while self.sub_iter != None:
+            sub_tag = next(self.sub_iter, None)
+            if sub_tag != None:
+                return Tag(self.current, sub_tag, self.tags.tags, self.tags.bank)
+            self.current = next(self.iter)
+            self.sub_iter = iter(self.tags.tags[self.current])
+
+        self.current = next(self.iter)
+        self.sub_iter = iter(self.tags.tags[self.current])
+        while True:
+            sub_tag = next(self.sub_iter, None)
+            if sub_tag != None:
+                return Tag(self.current, sub_tag, self.tags.tags, self.tags.bank)
+            self.current = next(self.iter)
+            self.sub_iter = iter(self.tags.tags[self.current])
+
 class Tags():
     def __len__(self):
         return len(self.tags)
+
+    def __iter__(self):
+        return TagIterator(self)
 
     def __init__(self, bank):
         self.bank = bank

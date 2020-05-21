@@ -50,6 +50,20 @@ def course_put(bank, c):
     course.put_words(c[2])
     course.put_tags(c[3])
 
+def list_tags(bank, rest):
+    i = 0
+    for tag in bank.tags:
+        if rest:
+            if not tag.name.startswith(rest):
+                continue
+        print(str(tag))
+        i+=1
+        if i % 15 == 0:
+            x = input("Press enter to continue")
+            if x == 'x' or x == 'q':
+                break
+
+
 def list_words(bank, rest):
     i = 0
     for word in bank.words:
@@ -84,6 +98,15 @@ def list_command(bank, c):
                     print(word.pretty_name)
         else:
             list_words(bank, rest)
+    elif options == 't':
+        if bank.course:
+            ts = bank.course.tags
+            for t in ts:
+                tag = bank.tags[t]
+                if tag.exists:
+                    print(str(tag))
+        else:
+            list_tags(bank, rest)
 
 def tag_delete(bank, c):
     options = c[1]
@@ -432,7 +455,7 @@ def input_loop():
     global parser
     while True:
         info = bank.summary()
-        command = input("\n" + info + "\n% ").strip()
+        command = input("\n[" + info + "]\n% ").strip()
         c = parser.parse_command(command)
         if not c:
             print("Not a valid command, try again")

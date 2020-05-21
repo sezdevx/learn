@@ -316,6 +316,10 @@ class CommandParser():
 
             return self.course_change(original, cmd[3:], "")
 
+        elif cmd == 'cd':
+
+            return self.course_change(original, '', "")
+
         elif cmd.startswith('clear '):
             cmd = cmd[6:]
             options = ""

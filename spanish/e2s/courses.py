@@ -28,6 +28,10 @@ class Course():
                 r.extend(self.bank.tags[t].words)
         return r
 
+    @property
+    def tags(self):
+        return self.node['t']
+
     def create(self):
         if not self.node:
             self.node = {'w': [], 't': [], 'p': []}
