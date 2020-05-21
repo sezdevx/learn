@@ -59,7 +59,7 @@ class WordBank():
         if self.course:
             return self.course.name + ": " + str(self.course.word_count) + " w" + ", " + str(self.course.tag_count) + " t"
         else:
-            return str(len(self.words)) + " w" + ", " + str(len(self.tags)) + " t"
+            return str(len(self.courses)) + " c, " + str(len(self.words)) + " w" + ", " + str(len(self.tags)) + " t"
 
     def save(self):
         if self.path != WordBank.MEMORY_FILE:

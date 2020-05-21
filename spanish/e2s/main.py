@@ -42,13 +42,22 @@ def course_clear(bank, c):
     c = bank.courses.get_course(name)
     if c:
         c.clear()
+        if bank.course and bank.course.name == name:
+            bank.course = bank.courses.get_course(name)
 
 def course_put(bank, c):
     options = c[1]
     course = bank.course
-    print(c[2])
+
     course.put_words(c[2])
     course.put_tags(c[3])
+
+def course_remove(bank, c):
+    options = c[1]
+    course = bank.course
+
+    course.remove_words(c[2])
+    course.remove_tags(c[3])
 
 def list_tags(bank, rest):
     i = 0
@@ -78,11 +87,20 @@ def list_words(bank, rest):
                 break
 
 
+def list_course_info(course):
+    print(course.word_count, " words")
+    print(course.tag_count, " tags")
+
 def list_command(bank, c):
     options = c[1]
     rest = c[2]
 
-    if not options or options == 'c':
+    if not options:
+        if bank.course:
+            list_course_info(bank.course)
+        else:
+            options = 'c'
+    if options == 'c':
         for course in bank.courses:
             if rest:
                 if course.name.startswith(rest):
@@ -498,6 +516,8 @@ def input_loop():
             course_clear(bank, c)
         elif c[0] == CommandKind.COURSE_PUT:
             course_put(bank, c)
+        elif c[0] == CommandKind.COURSE_REMOVE:
+            course_remove(bank, c)
 
         elif c[0] == CommandKind.EXIT:
             bank.save()

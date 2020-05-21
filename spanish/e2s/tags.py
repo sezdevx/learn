@@ -213,6 +213,12 @@ class Tag():
         return None
 
     @property
+    def word_count(self):
+        if self.node:
+            return len(self.node['w'])
+        return 0
+
+    @property
     def empty(self):
         if self.node:
             return len(self.node['w']) == 0

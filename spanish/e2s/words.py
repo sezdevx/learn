@@ -475,7 +475,9 @@ class Words():
     def complete(self, line, text, matches):
         if text.startswith('-'):
             return False
-        if line.startswith('more '):
+        if line.startswith('more ') or line.startswith('put '):
+            if line.startswith('put ') and not self.bank.course:
+                return False
             idx = line.rfind(',')
             if idx != -1:
                 to_be_completed = line[idx+1:]

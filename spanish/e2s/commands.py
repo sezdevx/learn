@@ -43,6 +43,7 @@ class CommandKind(Enum):
     COURSE_CHANGE = 'course-change'
     COURSE_CLEAR  = 'course-clear'
     COURSE_PUT    = 'course-put'
+    COURSE_REMOVE = 'course-remove'
 
     SAVE = 'save'
     LOAD = 'load'
@@ -57,21 +58,22 @@ class CommandParser():
     def complete(self, text, state):
         if state == 0:
             self.matches = []
+            line = readline.get_line_buffer()
+            sline = line.lstrip()
             if text and text.startswith('#'):
-                if not self.bank.tags.complete_tags(text, self.matches):
+                if not line.startswith('cd '):
+                    if not self.bank.tags.complete_tags(text, self.matches):
+                        return None
+
+            if sline.startswith('?'):
+                if not self.bank.words.reverse_complete(sline, text, self.matches):
                     return None
-            else:
-                line = readline.get_line_buffer()
-                sline = line.lstrip()
-                if sline.startswith('?'):
-                    if not self.bank.words.reverse_complete(sline, text, self.matches):
-                        return None
-                elif sline.startswith('more '):
-                    if not self.bank.words.complete(sline, text, self.matches):
-                        return None
-                elif sline.startswith('cd '):
-                    if not self.bank.courses.complete(text, self.matches):
-                        return None
+            elif sline.startswith('more ') or sline.startswith('put '):
+                if not self.bank.words.complete(sline, text, self.matches):
+                    return None
+            elif sline.startswith('cd '):
+                if not self.bank.courses.complete(text, self.matches):
+                    return None
         try:
             return self.matches[state]
         except IndexError:
@@ -133,6 +135,26 @@ class CommandParser():
                 w.append(word)
 
         return [CommandKind.COURSE_PUT, options, w, t, p]
+
+    def course_remove(self, original, cmd, options):
+        if not self.bank.course:
+            print("WARNING: must first change to a course")
+            return [CommandKind.CONTINUE]
+        words = [a.strip() for a in cmd.split(',')]
+        t = []
+        w = []
+        p = []
+        for word in words:
+            if word.startswith('#'):
+                if not TagObjName.is_valid(word):
+                    raise InvalidTagObjName("Not a valid tag name: " + word + " in '" + original + "'")
+                t.append(word)
+            else:
+                if not WordObjName.is_valid(word):
+                    raise InvalidWordObjName("Not a valid word name: " + word + " in '" + original + "'")
+                w.append(word)
+
+        return [CommandKind.COURSE_REMOVE, options, w, t, p]
 
 
     def tag_delete(self, original, cmd, options):
@@ -320,6 +342,10 @@ class CommandParser():
 
             return self.course_change(original, '', "")
 
+        elif cmd == 'clear' and self.bank.course:
+
+            return self.course_clear(original, self.bank.course.name, "")
+
         elif cmd.startswith('clear '):
             cmd = cmd[6:]
             options = ""
@@ -336,7 +362,7 @@ class CommandParser():
                 return self.course_clear(original, cmd[1:].strip(), options)
 
         elif cmd.startswith('put '):
-            cmd = cmd[3:]
+            cmd = cmd[4:]
             options = ""
             if cmd.startswith('-'):
                 idx = cmd.find(' ')
@@ -347,8 +373,20 @@ class CommandParser():
 
             return self.course_put(original, cmd, options)
 
-        elif cmd.startswith('rm '):
-            cmd = cmd[3:]
+        elif cmd.startswith('remove '):
+            cmd = cmd[7:]
+            options = ""
+            if cmd.startswith('-'):
+                idx = cmd.find(' ')
+                if idx == -1:
+                    raise InvalidCommandError("put requires an argument: " + original)
+                options = cmd[1:idx]
+                cmd = cmd[idx+1]
+
+            return self.course_remove(original, cmd, options)
+
+        elif cmd.startswith('del '):
+            cmd = cmd[5:]
             options = ""
             if cmd.startswith('-'):
                 idx = cmd.find(' ')

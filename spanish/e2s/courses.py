@@ -12,6 +12,10 @@ class Course():
         self.courses = bank.data['courses']
         self.node = self.courses.get(self.name, None)
 
+    def clear(self):
+        self.node = {'w': [], 't': [], 'p': []}
+        self.courses[self.name] = self.node
+
     @property
     def word_count(self):
         w = len(self.node['w'])
@@ -20,12 +24,19 @@ class Course():
         return w
 
     @property
+    def tag_count(self):
+        return len(self.node['t'])
+
+    @property
     def words(self):
-        r = []
-        r.extend(self.node['w'])
+        r = set()
+        for w in self.node['w']:
+            r.add(w)
         for t in self.node['t']:
+            t = self.bank.tags[t]
             if t.exists:
-                r.extend(self.bank.tags[t].words)
+                for w in t.words:
+                    r.add(w)
         return r
 
     @property
@@ -34,8 +45,7 @@ class Course():
 
     def create(self):
         if not self.node:
-            self.node = {'w': [], 't': [], 'p': []}
-            self.courses[self.name] = self.node
+            self.clear()
 
     def delete(self):
         if self.node:
@@ -101,6 +111,9 @@ class CourseIterator():
 
 class Courses():
 
+    def __len__(self):
+        return len(self.courses)
+
     def __iter__(self):
         return CourseIterator(self.bank)
 
@@ -109,8 +122,16 @@ class Courses():
         self.courses = bank.data['courses']
 
     def complete(self, name, matches):
+        prefix = None
+        if name.startswith('../') and self.bank.course:
+            prefix = name[:3]
+            name = name[3:]
         for w in self.courses:
             if w.startswith(name):
+                if self.bank.course and w == self.bank.course.name:
+                    continue
+                if prefix:
+                    w = prefix + w
                 matches.append(w)
                 if len(matches) > 10:
                     return None
@@ -131,9 +152,4 @@ class Courses():
     def delete_course(self, name):
         c = Course(name, self.bank)
         return c.delete()
-
-
-
-
-
 
