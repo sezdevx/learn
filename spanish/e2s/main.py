@@ -60,9 +60,12 @@ def opposite_sex(bank, c):
     if idx2 == 0:
         idx2 +=1
     w = bank.words[name1][idx1]
+    w2 = bank.words[name2][idx2]
+
     if not kind1.unknown and w.kind != kind1:
         raise InvalidCommandError("Mismatching kinds: " + kind1 + " vs " + w.kind)
-    w2 = bank.words[name2][idx2]
+    if not kind2.unknown and w2.kind != kind2:
+        raise InvalidCommandError("Mismatching kinds: " + kind2 + " vs " + w2.kind)
 
     if not w.exists:
         print("No such word: ", w.pretty_name)
